@@ -1,0 +1,730 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Comprendre — Le sens des polynômes du second degré</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+
+<style>
+  :root{
+    --ink:#2D2D30; --ink-soft:#78787D; --rule:#E4E4E7; --card:#F7F7F8;
+    --blue:#285AC4; --teal:#0F766E; --red:#BC443A;
+    --blue-soft:#EAF0FB; --teal-soft:#E7F4F2;
+    --max:760px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0; font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+    color:var(--ink); background:#FFFFFF; line-height:1.6; -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{font-family:'Poppins',sans-serif; font-weight:600; line-height:1.22; letter-spacing:-.01em; margin:0 0 .6em 0;}
+  h1{font-size:clamp(2.3rem,5.6vw,3.6rem); font-weight:700; letter-spacing:-.025em;}
+  h2{font-size:clamp(1.65rem,3.6vw,2.35rem); letter-spacing:-.018em;}
+  h3{font-size:1.05rem; letter-spacing:-.005em;}
+  p{margin:0 0 1em 0;}
+  .lede{color:var(--ink-soft); font-size:clamp(1.1rem,2vw,1.25rem); font-weight:400; line-height:1.6;}
+  .accent-blue{color:var(--blue); font-weight:600;}
+  .accent-teal{color:var(--teal); font-weight:600;}
+  .accent-red{color:var(--red); font-weight:600;}
+
+  #progress{position:fixed; top:0; left:0; height:2px; width:0%; background:var(--blue); z-index:1000; transition:width .05s linear; opacity:.75;}
+
+  section{padding:clamp(5rem,12vh,8.5rem) 1.5rem; max-width:var(--max); margin:0 auto; min-height:60vh; display:flex; flex-direction:column; justify-content:center;}
+  section.wide{max-width:980px;}
+
+  .step-tag{display:inline-block; font-family:'Poppins',sans-serif; font-size:.75rem; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-soft); border:1px solid var(--rule); border-radius:999px; padding:.3em .9em; margin-bottom:1.4em;}
+
+  .card{background:var(--card); border:1px solid var(--rule); border-radius:20px; padding:1.8em 2em; margin:1.8em 0;}
+  .card h3{margin-top:0; display:flex; align-items:center; gap:.5em;}
+  .card.retain{border-color:transparent; background:var(--blue-soft);}
+  .card.retain h3{color:var(--blue);}
+
+  .divider{height:1px; background:var(--rule); border:none; margin:0 auto; max-width:var(--max); width:100%;}
+
+  .katex-display{margin:1em 0; overflow-x:auto; overflow-y:hidden;}
+  .demo-line{overflow-x:auto; overflow-y:hidden; min-height:1.9em; display:flex; align-items:center; justify-content:center; margin:.2em 0;}
+
+  .grid-2{display:grid; grid-template-columns:1fr 1fr; gap:2.5rem; align-items:center;}
+  @media (max-width:760px){ .grid-2{grid-template-columns:1fr;} section.wide{max-width:var(--max);} }
+
+  .anim-box{background:var(--card); border-radius:20px; padding:1.2rem; display:flex; flex-direction:column; align-items:center; gap:.8rem; position:relative;}
+  .anim-box svg{width:100%; height:auto; max-width:340px;}
+
+  .readout{font-family:'Inter',sans-serif; font-size:.95rem; display:flex; gap:1.4em; flex-wrap:wrap; justify-content:center;}
+  .readout span.val{font-variant-numeric:tabular-nums; font-weight:600;}
+
+  .live-matrix{font-family:'Inter',sans-serif; font-size:.9rem; text-align:center; color:var(--ink-soft);}
+
+  a.discreet{color:var(--ink-soft); font-size:.9rem; text-decoration:none; border-bottom:1px dotted var(--ink-soft);}
+  a.discreet:hover{color:var(--blue); border-color:var(--blue);}
+
+  .hero{min-height:92vh; justify-content:center;}
+  .hero .kicker{font-family:'Poppins',sans-serif; font-size:.78rem; font-weight:600; letter-spacing:.14em; text-transform:uppercase; color:var(--blue); margin-bottom:1.1em;}
+
+  .intro-visual{margin:2.6em 0 1.8em; padding:1.4rem 1.4rem 1.1rem; background:var(--card); border:1px solid var(--rule); border-radius:24px; overflow:hidden;}
+  .intro-visual svg{display:block; width:100%; height:auto;}
+  .intro-caption{margin:.6rem auto 0; max-width:520px; text-align:center; color:var(--ink-soft); font-size:.9rem;}
+
+  .scroll-cue{margin-top:3em; text-align:center; color:var(--ink-soft); font-size:.85rem; animation:bob 2s ease-in-out infinite;}
+  @keyframes bob{0%,100%{transform:translateY(0);} 50%{transform:translateY(6px);}}
+
+  details.detail-card{background:var(--card); border:1px solid var(--rule); border-radius:18px; padding:1rem 1.2rem; margin-top:1.2rem;}
+  details.detail-card summary{cursor:pointer; font-weight:600; color:var(--blue);}
+
+  .summary-grid{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1.4rem 1rem; margin-top:1.5rem;}
+  @media(max-width:650px){.summary-grid{grid-template-columns:1fr;}}
+  .summary-item{border-top:1px solid var(--rule); padding-top:.9rem;}
+  .summary-item strong{display:block; color:var(--blue); margin-bottom:.3rem;}
+
+  footer{text-align:center; padding:4rem 1.5rem 6rem; color:var(--ink-soft); font-size:.85rem;}
+
+  .reveal{opacity:0; transform:translateY(18px); transition:opacity .6s ease, transform .6s ease;}
+  .reveal.visible{opacity:1; transform:translateY(0);}
+
+  .section-num{font-family:'Poppins',sans-serif; font-weight:600; font-size:.76rem; letter-spacing:.1em; text-transform:uppercase; color:var(--blue); margin-bottom:.9em;}
+
+  /* ---------- spécifique à cette fiche ---------- */
+  .demo-wrap{ display:flex; flex-direction:column; align-items:center; gap:.4em; padding:1em .5em; }
+  .demo-step{ opacity:0; transform:translateY(6px); transition:opacity .5s ease, transform .5s ease; }
+  .demo-step.show{ opacity:1; transform:translateY(0); }
+  .example-box{ border-left:3px solid var(--teal); background:var(--teal-soft); border-radius:0 14px 14px 0; padding:1rem 1.3rem; margin:1.2em 0; }
+  .example-box .ex-label{ font-family:'Poppins',sans-serif; font-size:.72rem; font-weight:600; letter-spacing:.05em; text-transform:uppercase; color:var(--teal); margin-bottom:.5em; }
+  .aside-box{ border:1.5px dashed var(--rule); border-radius:16px; padding:1.2rem 1.4rem; margin:1.6em 0; }
+  .aside-box .as-label{ font-family:'Poppins',sans-serif; font-size:.72rem; font-weight:600; letter-spacing:.05em; text-transform:uppercase; color:var(--ink-soft); margin-bottom:.6em; }
+</style>
+</head>
+<body>
+
+<div id="progress"></div>
+
+<!-- ============ SECTION 0 — ACCROCHE ============ -->
+<section class="hero" id="s0">
+  <div class="kicker reveal">Comprendre · Polynômes du second degré</div>
+  <h1 class="reveal">Jusqu'où va-t-il monter, et où va-t-il retomber ?</h1>
+  <p class="lede reveal">
+    Un joueur tire un ballon vers le panier. Le ballon quitte sa main, monte,
+    ralentit, puis redescend. Sa trajectoire dessine une courbe précise,
+    entièrement déterminée par sa vitesse et son angle de départ.
+  </p>
+
+  <div class="intro-visual reveal">
+    <svg viewBox="0 0 480 260" role="img" aria-label="Trajectoire d'un ballon lancé : hauteur maximale et point de chute, tous deux encore inconnus.">
+      <defs>
+        <marker id="heroArrow" markerWidth="9" markerHeight="9" refX="7.5" refY="4.5" orient="auto"><path d="M0,0.6 L8.4,4.5 L0,8.4 Z" fill="#2D2D30"/></marker>
+      </defs>
+      <!-- axes, origine au point de lancer (70,210) -->
+      <line x1="70" y1="210" x2="460" y2="210" stroke="#2D2D30" stroke-width="1.5" marker-end="url(#heroArrow)"/>
+      <line x1="70" y1="210" x2="70" y2="30" stroke="#2D2D30" stroke-width="1.5" marker-end="url(#heroArrow)"/>
+
+      <!-- trajectoire : parabole pixel y=A(x-255)^2+70, A=0.004090577, vérifiée :
+           passe par (70,210) et (440,210) exactement (cf geom.py) -->
+      <path id="hero-traj" fill="none" stroke="#285AC4" stroke-width="2.6"/>
+
+      <circle cx="70" cy="210" r="4" fill="#2D2D30"/>
+      <text x="60" y="230" font-family="Inter" font-size="12.5" fill="#2D2D30">départ</text>
+
+      <!-- point de chute (440,210) : marqué d'un repère pointillé jusqu'au sol -->
+      <line x1="440" y1="210" x2="440" y2="192" stroke="#78787D" stroke-width="1.2" stroke-dasharray="3 3"/>
+      <!-- libellé posé au-delà de x=440 (fin réelle de la courbe) : aucun chevauchement possible avec le tracé -->
+      <text x="446" y="196" font-family="Poppins" font-size="15" font-weight="700" fill="#78787D">?</text>
+
+      <!-- sommet (255,70) : repère pointillé vertical vers le sol -->
+      <line x1="255" y1="70" x2="255" y2="210" stroke="#78787D" stroke-width="1.2" stroke-dasharray="3 3"/>
+      <!-- libellé à 22px au-dessus du sommet, loin (Δx=185) de la flèche de l'axe des hauteurs en x=70 -->
+      <text x="248" y="48" font-family="Poppins" font-size="15" font-weight="700" fill="#78787D">?</text>
+    </svg>
+    <p class="intro-caption">La trajectoire est fixée dès le lancer — mais sa hauteur maximale et son point de chute restent, pour l'instant, deux inconnues.</p>
+  </div>
+
+  <p class="reveal">
+    Cette courbe porte un nom&nbsp;: c'est un <strong>polynôme du second degré</strong>,
+    une fonction de la forme <em>ax² + bx + c</em>. Répondre aux deux questions
+    ci-dessus, c'est savoir lire ce polynôme sous deux écritures différentes de
+    celle qu'on connaît déjà.
+  </p>
+
+  <div class="scroll-cue reveal">scroller pour construire ces deux autres écritures ↓</div>
+</section>
+
+<hr class="divider">
+
+<!-- ============ SECTION 1 — TROIS ÉCRITURES ============ -->
+<section class="wide" id="s1">
+  <div class="section-num reveal">01 · Trois écritures</div>
+  <h2 class="reveal">Un même polynôme, trois lectures</h2>
+  <p class="reveal">
+    Le polynôme qui décrit la trajectoire s'écrit ax² + bx + c. Cette écriture
+    <strong>développée</strong> donne immédiatement a, b et c — mais elle ne
+    répond à aucune des deux questions posées plus haut sans calcul
+    supplémentaire. Deux autres écritures existent, chacune construite pour
+    répondre directement à l'une des deux questions.
+  </p>
+
+  <div class="grid-2">
+    <div class="anim-box reveal">
+      <svg id="anim1-svg" viewBox="0 0 340 340"></svg>
+      <div class="readout"><span id="a1-caption" style="font-weight:600;"></span></div>
+    </div>
+
+    <div class="reveal">
+      <p>Développée, elle donne accès à a, b, c — mais pas plus, sans calcul&nbsp;:</p>
+      <div id="f-dev"></div>
+      <p>Mise sous <strong>forme canonique</strong>, elle donne directement le sommet
+        de la courbe&nbsp;: la hauteur maximale du ballon, et l'instant où il l'atteint.</p>
+      <div id="f-can"></div>
+      <p>Mise sous <strong>forme factorisée</strong>, elle donne directement ses
+        racines&nbsp;: les points où la courbe touche le sol.</p>
+      <div id="f-fact"></div>
+    </div>
+  </div>
+
+  <div class="card retain reveal">
+    <h3>À retenir</h3>
+    <p style="margin:0;">
+      Développée, canonique et factorisée décrivent exactement la même courbe.
+      Le choix de l'écriture dépend de la question posée, jamais de l'objet
+      lui-même.
+    </p>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ============ SECTION 2 — FORME CANONIQUE ============ -->
+<section class="wide" id="s2">
+  <div class="section-num reveal">02 · La forme canonique</div>
+  <h2 class="reveal">Faire apparaître le sommet</h2>
+  <p class="reveal">
+    Le sommet d'une parabole ne se lit pas dans a, b, c. Pour le faire
+    apparaître, il faut réécrire ax² + bx + c sous une forme où il devient
+    visible&nbsp;: a(x − α)² + β.
+  </p>
+
+  <div class="reveal demo-wrap">
+    <div class="demo-line demo-step" id="d2-l0"></div>
+    <div class="demo-line demo-step" id="d2-l1"></div>
+    <div class="demo-line demo-step" id="d2-l2"></div>
+    <div class="demo-line demo-step" id="d2-l3"></div>
+    <div class="demo-line demo-step" id="d2-l4"></div>
+  </div>
+
+  <div class="card retain reveal">
+    <h3>Le résultat général</h3>
+    <div id="f-canonique-general" style="margin:.6em 0 0;"></div>
+  </div>
+
+  <div class="grid-2" style="margin-top:2.2em;">
+    <div class="anim-box reveal">
+      <svg id="anim2-svg" viewBox="0 0 340 340"></svg>
+    </div>
+    <div class="reveal">
+      <p>Sur l'exemple −x² + 3x − 2&nbsp;: a = −1, b = 3, c = −2, donc Δ = b² − 4ac.</p>
+      <div id="f-ex-delta"></div>
+      <p>D'où le sommet&nbsp;:</p>
+      <div id="f-ex-sommet"></div>
+    </div>
+  </div>
+
+  <div class="card retain reveal">
+    <h3>À retenir</h3>
+    <p style="margin:0;">
+      Le sommet ne se devine pas&nbsp;: il se lit directement dans les
+      coefficients, par ces deux formules. Dans le lancer, c'est exactement le
+      point le plus haut de la trajectoire — et l'instant où il est atteint.
+    </p>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ============ SECTION 3 — FORME FACTORISÉE ============ -->
+<section class="wide" id="s3">
+  <div class="section-num reveal">03 · La forme factorisée</div>
+  <h2 class="reveal">Retrouver les racines sans recalculer Δ</h2>
+  <p class="reveal">
+    Les racines d'un polynôme ax² + bx + c peuvent se retrouver directement,
+    sans discriminant, en repartant de la forme factorisée elle-même.
+  </p>
+
+  <div class="reveal demo-wrap">
+    <div class="demo-line demo-step" id="d3-l0"></div>
+    <div class="demo-line demo-step" id="d3-l1"></div>
+    <div class="demo-line demo-step" id="d3-l2"></div>
+  </div>
+
+  <div class="card retain reveal">
+    <h3>Les relations coefficients / racines</h3>
+    <div id="f-vieta" style="margin:.6em 0 0;"></div>
+  </div>
+
+  <div class="example-box reveal">
+    <div class="ex-label">Astuce de reconnaissance</div>
+    <p style="margin-bottom:.6em;">
+      Pour −x² + 3x − 2&nbsp;: on cherche deux nombres de somme 3 et de produit 2.
+      1 et 2 conviennent — ce sont donc les racines, sans aucun calcul de Δ.
+    </p>
+    <div id="f-ex-vieta"></div>
+  </div>
+
+  <div class="example-box reveal">
+    <div class="ex-label">Quand la reconnaissance ne saute pas aux yeux</div>
+    <p style="margin-bottom:.6em;">
+      Pour x² + 2x − 3&nbsp;: on teste une <strong>racine évidente</strong> — une
+      valeur simple essayée directement dans le polynôme. P(1) = 1 + 2 − 3 = 0,
+      donc 1 est racine. Comme le produit des racines vaut −3, l'autre racine
+      est −3 ⁄ 1 = −3.
+    </p>
+    <div id="f-ex-evidente"></div>
+  </div>
+
+  <p class="reveal">
+    Ces deux racines ne sont pas indépendantes du sommet construit en section
+    précédente&nbsp;: leur moyenne redonne exactement α.
+  </p>
+
+  <div class="grid-2">
+    <div class="anim-box reveal">
+      <svg id="anim3-svg" viewBox="0 0 340 340"></svg>
+    </div>
+    <div class="reveal">
+      <p>Sur −x² + 3x − 2&nbsp;: les racines sont 1 et 2, leur moyenne vaut 1,5 —
+        exactement α, le sommet trouvé en section 02.</p>
+      <div id="f-lien-sommet"></div>
+      <p style="margin-top:.8em;">Dans le lancer, c'est la traduction d'un fait
+        physique&nbsp;: la montée et la descente sont symétriques, donc l'instant
+        le plus haut est à mi-chemin entre le départ et l'arrivée au sol.</p>
+    </div>
+  </div>
+
+  <div class="card retain reveal">
+    <h3>À retenir</h3>
+    <p style="margin:0;">
+      Somme et produit des racines donnent un raccourci de factorisation ; à
+      défaut, tester une racine évidente suffit à trouver la seconde par le
+      produit. Le sommet est toujours la moyenne des deux racines.
+    </p>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ============ SECTION 4 — LE SECOND DEGRÉ COMME BRIQUE ============ -->
+<section class="wide" id="s4">
+  <div class="section-num reveal">04 · Une brique, pas une fin</div>
+  <h2 class="reveal">Quand une équation plus grande cache un second degré</h2>
+  <p class="reveal">
+    Une équation de degré 3 ou 4 ne se résout pas directement à la main. Mais
+    dans beaucoup de cas, une étape suffit à la ramener à ce qu'on vient de
+    voir&nbsp;: un second degré ordinaire.
+  </p>
+
+  <h3 style="color:var(--blue); margin-top:2em;">Un degré 3 avec une racine évidente</h3>
+  <p>
+    Soit P(x) = x³ − 6x² + 11x − 6. Comme en section 03, on teste une racine
+    évidente&nbsp;: on essaie une valeur simple jusqu'à en trouver une qui
+    annule P.
+  </p>
+
+  <div class="reveal demo-wrap">
+    <div class="demo-line demo-step" id="d4-l0"></div>
+    <div class="demo-line demo-step" id="d4-l1"></div>
+    <div class="demo-line demo-step" id="d4-l2"></div>
+    <div class="demo-line demo-step" id="d4-l3"></div>
+  </div>
+
+  <div class="card retain reveal">
+    <p style="margin:0;">
+      Une racine trouvée fait tomber le degré de un&nbsp;: un degré 3 devient un
+      degré 2, qu'on sait résoudre depuis la section 03.
+    </p>
+  </div>
+
+  <h3 style="color:var(--blue); margin-top:2em;">Un degré 4 sans terme impair</h3>
+  <p>
+    Soit P(x) = x⁴ − 5x² + 4. Seules des puissances paires de x apparaissent
+    (x⁴ et x²)&nbsp;: poser X = x² transforme l'équation en une équation du
+    second degré en X.
+  </p>
+
+  <div class="reveal demo-wrap">
+    <div class="demo-line demo-step" id="d4-l4"></div>
+    <div class="demo-line demo-step" id="d4-l5"></div>
+    <div class="demo-line demo-step" id="d4-l6"></div>
+  </div>
+
+  <div class="card retain reveal">
+    <p style="margin:0;">
+      La substitution ne change pas la nature du problème&nbsp;: elle le ramène,
+      une fois de plus, au second degré.
+    </p>
+  </div>
+
+  <div class="aside-box reveal">
+    <div class="as-label">Pour aller plus loin</div>
+    <p style="margin:0;">
+      Si la résolution en X avait donné une valeur négative, la substitution
+      inverse x² = X n'aurait plus de solution réelle. C'est exactement ce qui
+      se passe pour x⁸ + 2x⁴ + 1 = 0&nbsp;: en posant X = x⁴, on obtient
+      (X + 1)² = 0, donc X = −1, et x⁴ = −1 n'a pas de solution réelle. Il
+      faut alors sortir des nombres réels — ce sera l'objet des nombres
+      complexes, en terminale.
+    </p>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ============ SECTION 5 — PRENDRE DU RECUL ============ -->
+<section class="wide" id="s5">
+  <div class="section-num reveal">05 · Prendre du recul</div>
+  <h2 class="reveal">Ce qu'un second degré permet de voir</h2>
+  <div class="summary-grid reveal">
+    <div class="summary-item"><strong>Lire</strong>La forme développée donne a, b, c&nbsp;: la concavité et le point de départ.</div>
+    <div class="summary-item"><strong>Localiser</strong>La forme canonique donne le sommet sans dérivée&nbsp;: un extremum lu, pas calculé.</div>
+    <div class="summary-item"><strong>Annuler</strong>La forme factorisée donne les racines directement&nbsp;: où la courbe croise l'axe.</div>
+    <div class="summary-item"><strong>Réduire</strong>Une racine évidente ou une substitution ramènent un degré supérieur à ce cas de base.</div>
+  </div>
+
+  <div class="card reveal">
+    <h3>Ce que cette capsule ne fait pas</h3>
+    <p style="margin:0;">
+      Elle ne traite pas la résolution générale des équations de degré 3 ou 4
+      sans racine évidente ni substitution simple, et elle ne développe pas
+      les nombres complexes — juste évoqués en section 04.
+    </p>
+  </div>
+
+  <div class="card retain reveal">
+    <h3>Cadre de cette capsule</h3>
+    <p>Tous les exemples utilisent des coefficients réels, et des racines
+      simples à calculer à la main.</p>
+    <p style="margin:0;">
+      La résolution générale des équations polynomiales, et les nombres
+      complexes qui l'accompagnent, relèvent d'une fiche à venir.
+    </p>
+  </div>
+</section>
+
+<footer>Capsule pilote « Comprendre » — Polynômes du second degré · format prototype</footer>
+
+<script>
+/* ---------- KaTeX render helper ---------- */
+function K(id, tex, display){
+  katex.render(tex, document.getElementById(id), {throwOnError:false, displayMode: !!display});
+}
+
+K('f-dev', "ax^2+bx+c", true);
+K('f-can', "a(x-\\alpha)^2+\\beta", true);
+K('f-fact', "a(x-x_1)(x-x_2)", true);
+
+K('f-canonique-general',
+  "P(x) = a(x-\\alpha)^2+\\beta \\qquad \\alpha=-\\dfrac{b}{2a},\\quad \\beta=-\\dfrac{\\Delta}{4a}", true);
+
+K('f-ex-delta', "\\Delta = 3^2 - 4(-1)(-2) = 9-8 = 1", true);
+K('f-ex-sommet', "\\alpha = -\\dfrac{3}{2(-1)} = 1{,}5 \\qquad \\beta = -\\dfrac{1}{4(-1)} = 0{,}25", true);
+
+K('f-vieta', "x_1+x_2=-\\dfrac{b}{a} \\qquad\\qquad x_1\\,x_2=\\dfrac{c}{a}", true);
+K('f-ex-vieta', "-x^2+3x-2=-(x-1)(x-2)", true);
+K('f-ex-evidente', "x^2+2x-3=(x-1)(x+3)", true);
+K('f-lien-sommet', "\\dfrac{x_1+x_2}{2} = \\dfrac{1+2}{2}=1{,}5=\\alpha", true);
+
+/* ---------- démonstration S2 : complétion du carré (générique a,b,c) ---------- */
+(function(){
+  const BLUE='#285AC4';
+  const tc = (s,c) => `\\textcolor{${c}}{${s}}`;
+  const lines = [
+    ['d2-l0', "P(x)=ax^2+bx+c = a\\Big(x^2+\\dfrac{b}{a}x\\Big)+c"],
+    ['d2-l1', "\\text{on factorise } a \\text{ pour faire apparaître le début d'un carré parfait}"],
+    ['d2-l2', `\\Big(x+\\dfrac{b}{2a}\\Big)^2 = x^2+\\dfrac{b}{a}x+${tc('\\dfrac{b^2}{4a^2}',BLUE)} \\;\\Rightarrow\\; \\text{il manque } ${tc('\\dfrac{b^2}{4a^2}',BLUE)}\\text{, qu'on ajoute puis retranche}`],
+    ['d2-l3', "P(x) = a\\Big(x+\\dfrac{b}{2a}\\Big)^2 - \\dfrac{b^2-4ac}{4a}"],
+    ['d2-l4', "P(x) = a\\Big(x+\\dfrac{b}{2a}\\Big)^2 - \\dfrac{\\Delta}{4a}"]
+  ];
+  lines.forEach(([id,tex])=>{
+    katex.render(tex, document.getElementById(id), {throwOnError:false, displayMode:true});
+  });
+  const els = lines.map(l=>document.getElementById(l[0]));
+  const sleep = ms => new Promise(r=>setTimeout(r,ms));
+  async function loop(){
+    while(true){
+      els.forEach(e=>e.classList.remove('show'));
+      await sleep(900);
+      for(const e of els){ e.classList.add('show'); await sleep(2400); }
+      await sleep(2600);
+    }
+  }
+  loop();
+})();
+
+/* ---------- démonstration S3 : relations coefficients/racines (générique) ---------- */
+(function(){
+  const lines = [
+    ['d3-l0', "a(x-x_1)(x-x_2) = a\\big[x^2-(x_1+x_2)x+x_1x_2\\big]"],
+    ['d3-l1', "\\text{on développe pour retrouver la forme } ax^2+bx+c \\text{ et identifier terme à terme}"],
+    ['d3-l2', "b=-a(x_1+x_2) \\;\\Rightarrow\\; x_1+x_2=-\\dfrac{b}{a} \\qquad\\qquad c=a\\,x_1x_2 \\;\\Rightarrow\\; x_1x_2=\\dfrac{c}{a}"]
+  ];
+  lines.forEach(([id,tex])=>{
+    katex.render(tex, document.getElementById(id), {throwOnError:false, displayMode:true});
+  });
+  const els = lines.map(l=>document.getElementById(l[0]));
+  const sleep = ms => new Promise(r=>setTimeout(r,ms));
+  async function loop(){
+    while(true){
+      els.forEach(e=>e.classList.remove('show'));
+      await sleep(900);
+      for(const e of els){ e.classList.add('show'); await sleep(2400); }
+      await sleep(2600);
+    }
+  }
+  loop();
+})();
+
+/* ---------- démonstration S4a : degré 3 avec racine évidente (x^3-6x^2+11x-6) ---------- */
+(function(){
+  const lines = [
+    ['d4-l0', "P(1)=1^3-6(1)^2+11(1)-6=0 \\;\\Rightarrow\\; 1 \\text{ est racine}"],
+    ['d4-l1', "P(x)=(x-1)(x^2+px+q)"],
+    ['d4-l2', "\\text{on développe et on identifie à } x^3-6x^2+11x-6 \\;\\Rightarrow\\; p=-5,\\ q=6"],
+    ['d4-l3', "x^2-5x+6=0 \\;\\Rightarrow\\; \\Delta=1 \\;\\Rightarrow\\; x=2 \\text{ ou } x=3 \\qquad\\Rightarrow\\quad \\{1,2,3\\}"]
+  ];
+  lines.forEach(([id,tex])=>{
+    katex.render(tex, document.getElementById(id), {throwOnError:false, displayMode:true});
+  });
+  const els = lines.map(l=>document.getElementById(l[0]));
+  const sleep = ms => new Promise(r=>setTimeout(r,ms));
+  async function loop(){
+    while(true){
+      els.forEach(e=>e.classList.remove('show'));
+      await sleep(900);
+      for(const e of els){ e.classList.add('show'); await sleep(2400); }
+      await sleep(2600);
+    }
+  }
+  loop();
+})();
+
+/* ---------- démonstration S4b : bicarré (x^4-5x^2+4) ---------- */
+(function(){
+  const lines = [
+    ['d4-l4', "X=x^2 \\;\\Rightarrow\\; X^2-5X+4=0"],
+    ['d4-l5', "\\Delta=9 \\;\\Rightarrow\\; X=1 \\text{ ou } X=4"],
+    ['d4-l6', "x^2=1 \\text{ ou } x^2=4 \\quad\\Rightarrow\\quad x\\in\\{-2,-1,1,2\\}"]
+  ];
+  lines.forEach(([id,tex])=>{
+    katex.render(tex, document.getElementById(id), {throwOnError:false, displayMode:true});
+  });
+  const els = lines.map(l=>document.getElementById(l[0]));
+  const sleep = ms => new Promise(r=>setTimeout(r,ms));
+  async function loop(){
+    while(true){
+      els.forEach(e=>e.classList.remove('show'));
+      await sleep(900);
+      for(const e of els){ e.classList.add('show'); await sleep(2400); }
+      await sleep(2600);
+    }
+  }
+  loop();
+})();
+
+/* ---------- scroll progress bar ---------- */
+const progressEl = document.getElementById('progress');
+function updateProgress(){
+  const h = document.documentElement;
+  const scrolled = (h.scrollTop) / (h.scrollHeight - h.clientHeight);
+  progressEl.style.width = (scrolled*100) + '%';
+}
+document.addEventListener('scroll', updateProgress, {passive:true});
+updateProgress();
+
+/* ---------- reveal on scroll ---------- */
+const io = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('visible'); io.unobserve(e.target); } });
+}, {threshold:0.15});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+/* ---------- utilitaires SVG communs ---------- */
+const NS = 'http://www.w3.org/2000/svg';
+function el(tag, attrs){
+  const e = document.createElementNS(NS, tag);
+  for(const k in attrs) e.setAttribute(k, attrs[k]);
+  return e;
+}
+function fade(node,v,dur){ node.style.transition='opacity '+(dur||.5)+'s ease'; node.setAttribute('opacity',v); }
+const sleep = ms => new Promise(r=>setTimeout(r,ms));
+
+/* échantillonne y=A(x-vx)^2+vy en espace pixel sur [xMin,xMax] : construit
+   une parabole exacte (pas une approximation), réutilisé par les 3 animations */
+function parabolaPath(vx,vy,A,xMin,xMax,steps){
+  steps = steps||48;
+  let d='';
+  for(let i=0;i<=steps;i++){
+    const x = xMin+(xMax-xMin)*i/steps;
+    const y = A*(x-vx)*(x-vx)+vy;
+    d += (i===0?'M':'L')+x.toFixed(2)+' '+y.toFixed(2)+' ';
+  }
+  return d;
+}
+
+/* ==================================================================
+   HERO — trajectoire du ballon (tracé exact, cf geom.py : A=0.0040906,
+   vx=255, vy=70, passe par (70,210) et (440,210))
+   ================================================================== */
+(function(){
+  const path = document.getElementById('hero-traj');
+  if(!path) return;
+  path.setAttribute('d', parabolaPath(255,70,0.0040905770635500365,70,440,60));
+})();
+
+/* ==================================================================
+   ANIM 1 (S1) — trois lectures d'une même parabole schématique.
+   Paramètres pixel vérifiés (cf geom.py) : vertex(205,280), A=-0.0198347,
+   racines à 150 et 260, tracé de x=115 à x=295 (y=119.34 aux extrémités).
+   Un seul élément met en évidence une lecture à la fois — pas de
+   labels internes superposables, tout passe par la légende unique
+   (même patron que initLocate() dans la fiche localisation).
+   ================================================================== */
+(function(){
+  const svg = document.getElementById('anim1-svg');
+  if(!svg) return;
+  const ox=170, axisY=220;
+
+  svg.appendChild(el('line',{x1:40,y1:axisY,x2:300,y2:axisY,stroke:'#E4E4E7','stroke-width':1.5}));
+  svg.appendChild(el('line',{x1:ox,y1:300,x2:ox,y2:40,stroke:'#E4E4E7','stroke-width':1.5}));
+
+  const curve = el('path',{fill:'none',stroke:'#2D2D30','stroke-width':2.2});
+  curve.setAttribute('d', parabolaPath(205,280,-0.019834710743801654,115,295,48));
+  svg.appendChild(curve);
+
+  // sommet + guides pointillés vers les deux axes
+  const gV = el('g',{opacity:0});
+  gV.appendChild(el('line',{x1:205,y1:280,x2:205,y2:axisY,stroke:'#285AC4','stroke-width':1,'stroke-dasharray':'3 3'}));
+  gV.appendChild(el('line',{x1:205,y1:280,x2:ox,y2:280,stroke:'#285AC4','stroke-width':1,'stroke-dasharray':'3 3'}));
+  gV.appendChild(el('circle',{cx:205,cy:280,r:5,fill:'#285AC4'}));
+  svg.appendChild(gV);
+
+  // racines
+  const gR = el('g',{opacity:0});
+  gR.appendChild(el('circle',{cx:150,cy:axisY,r:5,fill:'#0F766E'}));
+  gR.appendChild(el('circle',{cx:260,cy:axisY,r:5,fill:'#0F766E'}));
+  svg.appendChild(gR);
+
+  const cap = document.getElementById('a1-caption');
+  const phases = [
+    {on:[],  off:[gV,gR], curveColor:'#2D2D30', curveW:2.2, txt:'développée : a, b, c définissent la courbe', col:'#78787D'},
+    {on:[gV],off:[gR],    curveColor:'#2D2D30', curveW:2.2, txt:'canonique : elle donne directement le sommet', col:'#285AC4'},
+    {on:[gR],off:[gV],    curveColor:'#2D2D30', curveW:2.2, txt:'factorisée : elle donne directement les racines', col:'#0F766E'}
+  ];
+
+  async function loop(){
+    while(true){
+      for(const p of phases){
+        p.off.forEach(g=>fade(g,0,.6));
+        p.on.forEach(g=>fade(g,1,.6));
+        if(cap){ cap.textContent = p.txt; cap.style.color = p.col; }
+        await sleep(3900);
+      }
+    }
+  }
+  loop();
+})();
+
+/* ==================================================================
+   ANIM 2 (S2) — parabole concrète -x^2+3x-2 (tournée vers le bas, comme
+   la trajectoire du ballon), sommet marqué.
+   Transform math->pixel (cf geom.py) : toPxX(x)=60+70x, toPxY(y)=100-45y.
+   Sommet math(1.5,0.25) -> px(165,88.75). Racines math(1,0),(2,0) ->
+   px(130,100),(200,100). Tracé sur x_math in [-0.5,3.2].
+   ================================================================== */
+(function(){
+  const svg = document.getElementById('anim2-svg');
+  if(!svg) return;
+  const toPxX = x => 60+70*x, toPxY = y => 100-45*y;
+
+  svg.appendChild(el('line',{x1:20,y1:toPxY(0),x2:300,y2:toPxY(0),stroke:'#E4E4E7','stroke-width':1.5}));
+  svg.appendChild(el('line',{x1:toPxX(0),y1:280,x2:toPxX(0),y2:50,stroke:'#E4E4E7','stroke-width':1.5}));
+
+  // tracé point par point de y=-x^2+3x-2 (fonction réelle, pas une approximation pixel)
+  let d='';
+  const steps=60, xMin=-0.5, xMax=3.2;
+  for(let i=0;i<=steps;i++){
+    const xm = xMin+(xMax-xMin)*i/steps;
+    const ym = -xm*xm+3*xm-2;
+    d += (i===0?'M':'L')+toPxX(xm).toFixed(2)+' '+toPxY(ym).toFixed(2)+' ';
+  }
+  svg.appendChild(el('path',{d:d, fill:'none', stroke:'#2D2D30','stroke-width':2.2}));
+
+  // sommet (165,88.75) : au-dessus de l'axe (β=0.25 > 0, c'est un maximum), guide pointillé
+  const gV = el('g',{opacity:0});
+  gV.appendChild(el('line',{x1:165,y1:88.75,x2:165,y2:toPxY(0),stroke:'#285AC4','stroke-width':1,'stroke-dasharray':'3 3'}));
+  gV.appendChild(el('circle',{cx:165,cy:88.75,r:5,fill:'#285AC4'}));
+  // libellé centré 20px au-dessus du sommet (comme le "?" du sommet en section 0) :
+  // au-dessus du point le plus haut de la courbe, donc hors de portée du tracé
+  gV.appendChild(el('text',{x:165,y:68.75,'text-anchor':'middle','font-family':'Inter','font-size':12.5,fill:'#285AC4','font-weight':600}));
+  svg.appendChild(gV);
+  gV.lastChild.textContent = '(1,5 ; 0,25)';
+
+  fade(gV,1,.8);
+})();
+
+/* ==================================================================
+   ANIM 3 (S3) — même parabole -x^2+3x-2, racines + lien avec le sommet.
+   Même transform que anim2 pour cohérence visuelle exacte.
+   Racines math(1,0),(2,0) -> px(130,100),(200,100). Milieu px = 165,
+   identique à l'abscisse du sommet (165) : c'est la propriété montrée.
+   ================================================================== */
+(function(){
+  const svg = document.getElementById('anim3-svg');
+  if(!svg) return;
+  const toPxX = x => 60+70*x, toPxY = y => 100-45*y;
+
+  svg.appendChild(el('line',{x1:20,y1:toPxY(0),x2:300,y2:toPxY(0),stroke:'#E4E4E7','stroke-width':1.5}));
+  svg.appendChild(el('line',{x1:toPxX(0),y1:280,x2:toPxX(0),y2:50,stroke:'#E4E4E7','stroke-width':1.5}));
+
+  let d='';
+  const steps=60, xMin=-0.5, xMax=3.2;
+  for(let i=0;i<=steps;i++){
+    const xm = xMin+(xMax-xMin)*i/steps;
+    const ym = -xm*xm+3*xm-2;
+    d += (i===0?'M':'L')+toPxX(xm).toFixed(2)+' '+toPxY(ym).toFixed(2)+' ';
+  }
+  svg.appendChild(el('path',{d:d, fill:'none', stroke:'#2D2D30','stroke-width':2.2}));
+
+  const r1 = el('circle',{cx:130,cy:100,r:5,fill:'#0F766E',opacity:0});
+  const r2 = el('circle',{cx:200,cy:100,r:5,fill:'#0F766E',opacity:0});
+  // pont horizontal pointillé entre les deux racines, à 12px SOUS l'axe (y=112) :
+  // entre les racines la courbe passe AU-DESSUS de l'axe (c'est la bosse, y<=100 en
+  // pixel), donc la bande juste sous l'axe est libre de tout tracé
+  const bridge = el('line',{x1:130,y1:112,x2:200,y2:112,stroke:'#78787D','stroke-width':1,'stroke-dasharray':'3 3',opacity:0});
+  // repère vertical du milieu (x=165), du pont jusqu'au sommet : traverse l'axe
+  // (y=100) entre le pont (112) et le sommet (88.75), comme la droite x=α usuelle
+  const mid = el('line',{x1:165,y1:112,x2:165,y2:88.75,stroke:'#285AC4','stroke-width':1,'stroke-dasharray':'3 3',opacity:0});
+  const vtx = el('circle',{cx:165,cy:88.75,r:5,fill:'#285AC4',opacity:0});
+  svg.appendChild(bridge); svg.appendChild(mid); svg.appendChild(r1); svg.appendChild(r2); svg.appendChild(vtx);
+
+  async function loop(){
+    while(true){
+      [r1,r2,bridge,mid,vtx].forEach(n=>{ n.style.transition='none'; n.setAttribute('opacity',0); });
+      await sleep(900);
+      fade(r1,1,.6); fade(r2,1,.6);
+      await sleep(1400);
+      fade(bridge,1,.6);
+      await sleep(1400);
+      fade(mid,1,.6);
+      await sleep(1000);
+      fade(vtx,1,.6);
+      await sleep(3200);
+    }
+  }
+  loop();
+})();
+</script>
+
+</body>
+</html>
