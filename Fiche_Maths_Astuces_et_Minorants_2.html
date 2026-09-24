@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fiche maths : astuces, exemples et minorants</title>
+<style>
+:root{
+  --bg:#1f2126; --card:#282b32; --card2:#2f333b; --line:#3d424c;
+  --ink:#f2f3f5; --muted:#a9afbb;
+  --red:#ff6b6b; --green:#52d97a; --yellow:#ffd54a; --blue:#6cb6ff;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:16px/1.65 -apple-system,"Avenir Next","Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+.wrap{max-width:980px;margin:0 auto;padding:36px 20px 90px}
+.kicker{color:var(--muted);letter-spacing:.14em;text-transform:uppercase;font-size:12.5px;margin:0}
+h1{font-size:clamp(28px,5.2vw,44px);line-height:1.12;margin:.25em 0 .3em;letter-spacing:-.01em}
+.lead{color:var(--muted);max-width:62ch;margin:0}
+h2{font-size:clamp(21px,3.4vw,28px);line-height:1.25;margin:0 0 .5em;display:flex;gap:.6em;align-items:baseline}
+h2 .n{color:var(--bg);background:var(--yellow);border-radius:8px;padding:0 .5em;font-size:.8em;font-weight:700}
+h3{font-size:18px;margin:0 0 .3em;line-height:1.3}
+section{margin-top:56px}
+p{margin:.5em 0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 20px}
+.note{border-left:4px solid var(--yellow);background:var(--card);border-radius:0 12px 12px 0;padding:12px 16px;margin:18px 0}
+.note.trap{border-color:var(--red)} .note.ok{border-color:var(--green)}
+.note b.t{display:block;margin-bottom:2px}
+.f{font-family:"Cambria Math","STIX Two Math",Georgia,"Times New Roman",serif;font-size:1.06em;white-space:nowrap}
+.f i{font-style:italic}
+.c-red{color:var(--red)} .c-green{color:var(--green)} .c-yellow{color:var(--yellow)} .c-blue{color:var(--blue)} .mut{color:var(--muted)}
+sub,sup{line-height:0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px}
+@media (max-width:820px){.grid2{grid-template-columns:1fr}}
+.tag{display:inline-block;background:var(--card2);border:1px solid var(--line);border-radius:999px;padding:0 10px;font-size:12.5px;color:var(--muted);margin-bottom:6px}
+.eq{font-size:1.1em;margin:.35em 0}
+.ln{display:block;margin:.28em 0}
+.tip{margin-top:10px;border-top:1px dashed var(--line);padding-top:8px;color:var(--ink);font-size:15px}
+.tip b{color:var(--yellow)}
+.frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;line-height:1.2;margin:0 .2em}
+.frac>span:first-child{border-bottom:1.5px solid currentColor;padding:0 .25em}
+.sys{display:flex;align-items:center;justify-content:center;gap:.5em;margin:.5em 0}
+.sys .brace{font-size:2.7em;font-weight:300;line-height:1;font-family:Georgia,"Times New Roman",serif;color:var(--ink)}
+.sys .lines{display:inline-flex;flex-direction:column;text-align:left;gap:.22em}
+svg{display:block;width:100%;height:auto}
+svg text{font-family:-apple-system,"Avenir Next","Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+.halo{paint-order:stroke;stroke:#23262c;stroke-width:4px;stroke-linejoin:round}
+.plot{background:#23262c;border-radius:12px}
+table.sg{border-collapse:collapse;width:100%;font-size:14.5px;margin-top:6px}
+table.sg td,table.sg th{border:1px solid var(--line);padding:4px 8px;text-align:center}
+table.sg th{background:var(--card2);font-weight:600}
+ul.refl{list-style:none;padding:0;margin:8px 0 0;display:grid;gap:8px}
+ul.refl li{display:grid;grid-template-columns:22px 1fr;gap:8px}
+ul.refl li::before{content:"→";color:var(--yellow);font-weight:700}
+
+/* ---- minorant ---- */
+.lab{display:grid;grid-template-columns:1.55fr 1fr;gap:14px;margin-top:16px;align-items:start}
+@media (max-width:860px){.lab{grid-template-columns:1fr}}
+.stat{display:grid;gap:8px}
+.row{display:grid;grid-template-columns:30px 1fr;gap:10px;align-items:center;background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:8px 10px}
+.row .chip{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-weight:800;background:#454a55;color:#1f2126}
+.row.yes .chip{background:var(--green)} .row.no .chip{background:var(--red)}
+.row small{display:block;color:var(--muted);font-size:13px;line-height:1.3}
+.verdict{border-radius:12px;padding:10px 12px;font-size:15px;line-height:1.5;border:1px solid var(--line);background:var(--card2);min-height:5.6em}
+.verdict.neg{border-color:#8a8f9b} .verdict.pos{border-color:var(--green)} .verdict.min{border-color:var(--yellow)} .verdict.bad{border-color:var(--red)}
+.mval{font-size:22px;font-weight:700}
+.ctl{display:flex;gap:12px;align-items:center;margin-top:10px;flex-wrap:wrap}
+.ctl label{font-size:14px;color:var(--muted)}
+input[type=range]{flex:1;min-width:160px;accent-color:var(--yellow);height:28px}
+button{background:var(--card2);color:var(--ink);border:1px solid var(--line);border-radius:999px;padding:6px 18px;font:inherit;font-size:14px;cursor:pointer}
+button:hover{border-color:var(--yellow)}
+#aSl{ -webkit-appearance:none;appearance:none;background:transparent}
+#aSl::-webkit-slider-runnable-track{height:10px;border-radius:6px;background:linear-gradient(90deg,#ff6b6b 0 16.66%,#52d97a 16.66% 83.34%,#ff6b6b 83.34%)}
+#aSl::-moz-range-track{height:10px;border-radius:6px;background:linear-gradient(90deg,#ff6b6b 0 16.66%,#52d97a 16.66% 83.34%,#ff6b6b 83.34%)}
+#aSl::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:var(--yellow);border:2px solid #1f2126;margin-top:-5px}
+#aSl::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--yellow);border:2px solid #1f2126}
+.def{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+@media (max-width:820px){.def{grid-template-columns:1fr}}
+.def .card{border-width:2px}
+.def .d1{border-color:var(--green)} .def .d2{border-color:var(--yellow)}
+.steps3{counter-reset:s;list-style:none;padding:0;margin:10px 0 0;display:grid;gap:8px}
+.steps3 li{counter-increment:s;display:grid;grid-template-columns:30px 1fr;gap:10px;align-items:start}
+.steps3 li::before{content:counter(s);width:30px;height:30px;border-radius:50%;background:var(--card2);border:1px solid var(--line);display:grid;place-items:center;font-weight:700;color:var(--yellow)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <p class="kicker">Maths · Première spécialité · fiche de séance</p>
+  <h1>Astuces, exemples… et minorants</h1>
+  <p class="lead">Les exemples vus en séance, puis la grande idée : pour montrer qu'une fonction est <b>positive</b>, on peut chercher un <b>minorant positif</b>. (Les dérivées auront leur propre fiche.)</p>
+</header>
+
+<!-- =============== PARTIE 1 : EXEMPLES ET ASTUCES =============== -->
+<section>
+  <h2><span class="n">1</span>Les exemples vus en séance</h2>
+
+  <div class="grid2">
+    <!-- Ex 1 -->
+    <div class="card">
+      <span class="tag">Exemple 1 · équation à paramètre</span>
+      <h3>Combien de solutions selon <span class="f"><i>m</i></span> ?</h3>
+      <div class="eq f"><i>x</i>² − 2<i>mx</i> + <i>m</i> + 2 = 0</div>
+      <span class="ln"><b>①</b> <span class="f">Δ = (−2<i>m</i>)² − 4(<i>m</i>+2) = 4<i>m</i>² − 4<i>m</i> − 8</span></span>
+      <span class="ln"><b>②</b> Le nombre de solutions dépend du signe de Δ, et Δ dépend de <span class="f"><i>m</i></span> : c'est <b>lui-même un trinôme en <i>m</i></b>. On étudie son signe avec son propre discriminant :</span>
+      <span class="ln f" style="padding-left:1.4em">Δ′ = (−4)² − 4·4·(−8) = 16 + 128 = 144 = 12²</span>
+      <span class="ln f" style="padding-left:1.4em"><i>m</i> = <span class="frac"><span>4 ± 12</span><span>8</span></span> , donc <i>m</i> = −1 ou <i>m</i> = 2</span>
+      <span class="ln"><b>③</b> Le coefficient en <span class="f"><i>m</i>²</span> est 4 &gt; 0, donc Δ est positif à l'extérieur des racines, négatif entre elles.</span>
+      <svg viewBox="0 0 320 96" style="margin-top:8px" role="img" aria-label="Droite des valeurs de m avec le nombre de solutions">
+        <line x1="10" y1="40" x2="110" y2="40" stroke="#52d97a" stroke-width="5" stroke-linecap="round"/>
+        <line x1="110" y1="40" x2="210" y2="40" stroke="#ff6b6b" stroke-width="5"/>
+        <line x1="210" y1="40" x2="310" y2="40" stroke="#52d97a" stroke-width="5" stroke-linecap="round"/>
+        <circle cx="110" cy="40" r="7" fill="#ffd54a"/><circle cx="210" cy="40" r="7" fill="#ffd54a"/>
+        <text x="110" y="70" fill="#f2f3f5" font-size="14" text-anchor="middle">−1</text>
+        <text x="210" y="70" fill="#f2f3f5" font-size="14" text-anchor="middle">2</text>
+        <text x="60" y="22" fill="#52d97a" font-size="13" text-anchor="middle">2 solutions</text>
+        <text x="160" y="22" fill="#ff6b6b" font-size="13" text-anchor="middle">aucune</text>
+        <text x="260" y="22" fill="#52d97a" font-size="13" text-anchor="middle">2 solutions</text>
+        <text x="110" y="88" fill="#ffd54a" font-size="12.5" text-anchor="middle">1 solution</text>
+        <text x="210" y="88" fill="#ffd54a" font-size="12.5" text-anchor="middle">1 solution</text>
+        <text x="314" y="62" fill="#a9afbb" font-size="14" font-style="italic" text-anchor="end">m</text>
+      </svg>
+      <p class="f" style="font-size:15px;margin:.2em 0">S = ∅ si <i>m</i> ∈ ]−1 ; 2[ · #S = 1 si <i>m</i> ∈ {−1 ; 2} · #S = 2 sinon</p>
+    </div>
+
+    <!-- Ex 2 -->
+    <div class="card">
+      <span class="tag">Exemple 2 · somme et produit</span>
+      <h3>Deux nombres dont on connaît la somme et le produit</h3>
+      <div class="sys">
+        <span class="brace" aria-hidden="true">{</span>
+        <span class="lines f">
+          <span><i>x</i><sub>1</sub><i>x</i><sub>2</sub> = <i>P</i></span>
+          <span><i>x</i><sub>1</sub> + <i>x</i><sub>2</sub> = <i>S</i></span>
+        </span>
+      </div>
+      <p style="text-align:center;margin:.2em 0" class="f">⟺ <i>x</i><sub>1</sub> et <i>x</i><sub>2</sub> sont les racines de <i>x</i>² − <i>Sx</i> + <i>P</i> = 0</p>
+      <p class="mut" style="font-size:14.5px;margin-top:0">(elles existent dans ℝ quand Δ ≥ 0.)</p>
+      <div class="eq f"><i>x</i>² − (<i>m</i>+2)<i>x</i> + 2<i>m</i> = 0</div>
+      <span class="ln">Ici <span class="f"><i>S</i> = <i>m</i> + 2</span> et <span class="f"><i>P</i> = 2<i>m</i></span>.</span>
+      <span class="ln f">Δ = (<i>m</i>+2)² − 8<i>m</i> = <i>m</i>² − 4<i>m</i> + 4 = <b class="c-yellow">(<i>m</i> − 2)²</b> ≥ 0</span>
+      <span class="ln">Δ est un carré : il est <b>toujours ≥ 0</b>, donc l'équation a toujours des solutions, sans discuter de cas. Et la racine carrée de Δ est simplement <span class="f">|<i>m</i> − 2|</span> :</span>
+      <span class="ln f" style="padding-left:1.4em"><i>x</i> = <span class="frac"><span>(<i>m</i>+2) ± (<i>m</i>−2)</span><span>2</span></span> , donc <i>x</i> = <i>m</i> ou <i>x</i> = 2</span>
+      <span class="ln">Contrôle : somme <span class="f"><i>m</i> + 2</span> ✓, produit <span class="f">2<i>m</i></span> ✓. (Pour <span class="f"><i>m</i> = 2</span>, Δ = 0 : racine double 2.)</span>
+      <div class="note" style="margin:10px 0 0">
+        <b class="t">Remarque</b>
+        On peut en fait lire la conclusion directement dans l'écriture du polynôme : <span class="f"><i>x</i>² − (<i>m</i>+2)<i>x</i> + 2<i>m</i></span> a une somme <span class="f"><i>m</i>+2</span> et un produit <span class="f">2<i>m</i></span> — exactement la somme et le produit de <span class="f"><i>m</i></span> et <span class="f">2</span>. C'est donc que <span class="f"><i>x</i>² − (<i>m</i>+2)<i>x</i> + 2<i>m</i> = (<i>x</i> − <i>m</i>)(<i>x</i> − 2)</span>, et on retrouve les racines <span class="f"><i>m</i></span> et <span class="f">2</span> sans passer par Δ.
+      </div>
+    </div>
+
+    <!-- Ex 3 -->
+    <div class="card">
+      <span class="tag">Exemple 3 · trouver un polynôme</span>
+      <h3>Déterminer <span class="f"><i>P</i></span> à partir de valeurs</h3>
+      <p>Un polynôme du second degré <span class="f"><i>P</i>(<i>x</i>) = <i>ax</i>² + <i>bx</i> + <i>c</i></span> a <b>3 coefficients</b> (<span class="f"><i>a</i>, <i>b</i>, <i>c</i></span>) : il faut <b>3 conditions</b> pour le déterminer.</p>
+      <div class="eq f"><i>P</i>(<i>x</i>) = <i>ax</i>² + <i>bx</i> + <i>c</i> avec <i>P</i>(0) = 1, <i>P</i>(1) = 2, <i>P</i>(2) = 5</div>
+      <span class="ln"><b>①</b> <span class="f"><i>P</i>(0) = <i>c</i></span>, donc <span class="f"><b class="c-yellow"><i>c</i> = 1</b></span> tout de suite.</span>
+      <span class="ln"><b>②</b> <span class="f"><i>P</i>(1) = 2</span> : <span class="f"><i>a</i> + <i>b</i> + 1 = 2</span>, donc <span class="f"><i>a</i> + <i>b</i> = 1</span>, c'est-à-dire <span class="f"><i>b</i> = 1 − <i>a</i></span>.</span>
+      <span class="ln"><b>③</b> <span class="f"><i>P</i>(2) = 5</span> : <span class="f">4<i>a</i> + 2<i>b</i> + 1 = 5</span>, donc <span class="f">4<i>a</i> + 2<i>b</i> = 4</span>.</span>
+      <span class="ln"><b>④</b> On remplace <span class="f"><i>b</i></span> par <span class="f">1 − <i>a</i></span> : <span class="f">4<i>a</i> + 2(1 − <i>a</i>) = 4</span>, donc <span class="f">2<i>a</i> + 2 = 4</span>, donc <span class="f"><i>a</i> = 1</span>. Puis <span class="f"><i>b</i> = 1 − 1 = 0</span>.</span>
+      <div class="eq f c-yellow">P(x) = x² + 1</div>
+      <svg id="interp" class="plot" viewBox="0 0 300 200" role="img" aria-label="Trois points et la parabole qui passe par eux"></svg>
+    </div>
+
+    <!-- Récap -->
+    <div class="card">
+      <span class="tag">Récap</span>
+      <h3>Les réflexes à garder</h3>
+      <ul class="refl">
+        <li><span>Le nombre de solutions se lit sur le <b>signe de Δ</b>. Si Δ dépend d'un paramètre, c'est un trinôme en ce paramètre : on refait l'étude avec <b>Δ′</b>, les racines, puis le signe de <span class="f"><i>a</i></span>.</span></li>
+        <li><span><b>Reconnaître une identité remarquable</b> (Δ = (<span class="f"><i>m</i>−2</span>)²) : plus de cas à distinguer.</span></li>
+        <li><span><b>Vérifier aux bornes</b> : quand Δ = 0, la solution est double, on peut le contrôler en factorisant.</span></li>
+        <li><span><b>Somme et produit</b> : deux nombres de somme <span class="f"><i>S</i></span> et de produit <span class="f"><i>P</i></span> sont les racines de <span class="f"><i>x</i>² − <i>Sx</i> + <i>P</i></span> — et on peut parfois les lire directement en factorisant le polynôme.</span></li>
+        <li><span><b>3 coefficients ⇒ 3 conditions</b> pour un polynôme du second degré, et évaluer en 0 donne le terme constant.</span></li>
+        <li><span>Pour montrer un <b>signe</b> : forme canonique, un carré est ≥ 0, et on obtient un <b>minorant</b> — voir la suite de cette fiche.</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- =============== PARTIE 2 : MINORANT =============== -->
+<section>
+  <h2><span class="n">2</span>Minorant et minimum : montrer qu'une fonction est positive</h2>
+  <p>Point de départ : pour tout <span class="f"><i>a</i></span>, on veut savoir si <span class="f"><i>P</i>(<i>x</i>) = <i>x</i>² + <i>ax</i> + 1</span> est strictement positif pour <b>tous</b> les réels <span class="f"><i>x</i></span>. On met sous forme canonique :</p>
+  <div class="eq f" style="text-align:center"><i>P</i>(<i>x</i>) = (<i>x</i> + <span class="frac"><span><i>a</i></span><span>2</span></span>)² + 1 − <span class="frac"><span><i>a</i>²</span><span>4</span></span></div>
+  <p>Un carré est toujours ≥ 0, donc <span class="f"><i>P</i>(<i>x</i>) ≥ 1 − <i>a</i>²/4</span> pour tout <span class="f"><i>x</i></span> : le nombre <span class="f">1 − <i>a</i>²/4</span> est un <b>minorant</b> de <span class="f"><i>P</i></span>. S'il est strictement positif, alors <span class="f"><i>P</i> &gt; 0</span> partout. Voyons ce que « minorant » veut dire exactement.</p>
+
+  <div class="def">
+    <div class="card d1">
+      <b class="c-green">Minorant</b>
+      <p><span class="f"><i>m</i></span> est un minorant de <span class="f"><i>f</i></span> sur ℝ si</p>
+      <div class="eq f c-green" style="text-align:center">∀<i>x</i> ∈ ℝ , <i>f</i>(<i>x</i>) ≥ <i>m</i></div>
+      <p class="mut" style="font-size:14.5px">La courbe reste <b>au-dessus</b> de la droite <span class="f"><i>y</i> = <i>m</i></span>. Elle peut la toucher, ou pas.</p>
+    </div>
+    <div class="card d2">
+      <b class="c-yellow">Minimum</b>
+      <p><span class="f"><i>m</i></span> est un minimum de <span class="f"><i>f</i></span> si c'est un minorant <b>et</b> qu'il est atteint :</p>
+      <div class="eq f c-yellow" style="text-align:center">∀<i>x</i> ∈ ℝ , <i>f</i>(<i>x</i>) ≥ <i>m</i>  et  ∃<i>x</i><sub>0</sub> ∈ ℝ , <i>f</i>(<i>x</i><sub>0</sub>) = <i>m</i></div>
+      <p class="mut" style="font-size:14.5px">La droite <span class="f"><i>y</i> = <i>m</i></span> <b>touche</b> la courbe en <span class="f"><i>x</i><sub>0</sub></span>.</p>
+    </div>
+  </div>
+
+  <h3 style="margin-top:26px">Animation : on fait monter la droite <span class="f"><i>y</i> = <i>m</i></span></h3>
+  <p class="mut" style="margin-top:0">Fonction utilisée : <span class="f"><i>f</i>(<i>x</i>) = <i>x</i>² + <i>x</i> + 1</span> (c'est <span class="f"><i>P</i></span> avec <span class="f"><i>a</i> = 1</span>, donc <span class="f">1 − <i>a</i>²/4 = 3/4</span>). Tu peux aussi faire glisser <span class="f"><i>m</i></span> toi-même.</p>
+
+  <div class="lab">
+    <div class="card" style="padding:12px">
+      <svg id="A" class="plot" viewBox="0 0 560 380" role="img" aria-label="Une droite horizontale monte sous la courbe de f"></svg>
+      <div class="ctl">
+        <label for="mSl"><span class="f"><i>m</i></span> =</label>
+        <input id="mSl" type="range" min="-2.5" max="3.5" step="0.01" value="-2">
+        <button id="aPlay" type="button">⏸ Pause</button>
+      </div>
+    </div>
+    <div class="stat">
+      <div class="mval f">m = <span id="mv">−2,00</span></div>
+      <div class="row" id="r1"><div class="chip">·</div><div><span class="f">∀<i>x</i> , <i>f</i>(<i>x</i>) ≥ <i>m</i></span><small>la courbe reste au-dessus de la droite</small></div></div>
+      <div class="row" id="r2"><div class="chip">·</div><div><span class="f">∃<i>x</i><sub>0</sub> , <i>f</i>(<i>x</i><sub>0</sub>) = <i>m</i></span><small>la droite touche la courbe</small></div></div>
+      <div class="row" id="r3"><div class="chip">·</div><div><span class="f"><i>m</i> &gt; 0</span><small>le minorant est strictement positif</small></div></div>
+      <div class="verdict" id="vd"></div>
+    </div>
+  </div>
+
+  <div class="note ok">
+    <b class="t">Ce qu'il faut voir</b>
+    Il y a une <b>infinité de minorants</b> : tous les <span class="f"><i>m</i> ≤ 3/4</span>. Le <b>minimum</b> est le plus grand d'entre eux, celui qui vient toucher la courbe. Au-delà, la droite coupe la courbe et ce n'est plus un minorant : un seul point sous la droite suffit à tout casser.
+  </div>
+
+  <div class="card" style="border:2px solid var(--green)">
+    <h3 class="c-green">La méthode : montrer <span class="f"><i>f</i>(<i>x</i>) &gt; 0</span> avec un minorant positif</h3>
+    <ol class="steps3">
+      <li><span><b>Trouver un minorant <span class="f"><i>m</i></span></b> : <span class="f"><i>f</i>(<i>x</i>) ≥ <i>m</i></span> pour tout <span class="f"><i>x</i></span>. Astuce classique : forme canonique, puis « un carré est ≥ 0 ».</span></li>
+      <li><span><b>Vérifier que <span class="f"><i>m</i> &gt; 0</span></b> (strictement, si on veut <span class="f"><i>f</i> &gt; 0</span>).</span></li>
+      <li><span><b>Conclure</b> : <span class="f"><i>f</i>(<i>x</i>) ≥ <i>m</i> &gt; 0</span>. La courbe est coincée au-dessus de la droite, qui est elle-même au-dessus de l'axe des <span class="f"><i>x</i></span>.</span></li>
+    </ol>
+  </div>
+
+  <h3 style="margin-top:30px">Application : pour quels <span class="f"><i>a</i></span> a-t-on <span class="f"><i>x</i>² + <i>ax</i> + 1 &gt; 0</span> pour tout <span class="f"><i>x</i></span> ?</h3>
+  <p class="mut" style="margin-top:0">En fonction des valeurs de <span class="f"><i>a</i></span>, la valeur du minimum varie.</p>
+
+  <div class="lab">
+    <div class="card" style="padding:12px">
+      <svg id="B" class="plot" viewBox="0 0 560 340" role="img" aria-label="La parabole x² + ax + 1 pour différentes valeurs de a"></svg>
+      <div class="ctl">
+        <label for="aSl"><span class="f"><i>a</i></span> =</label>
+        <input id="aSl" type="range" min="-3" max="3" step="0.01" value="1">
+        <button id="bPlay" type="button">⏸ Pause</button>
+      </div>
+      <div class="mut" style="font-size:13px;text-align:center;margin-top:2px"><span style="color:var(--green)">vert : −2 &lt; <i>a</i> &lt; 2</span> · <span style="color:var(--red)">rouge : |<i>a</i>| ≥ 2</span></div>
+    </div>
+    <div class="stat">
+      <div class="mval f">a = <span id="av">1,00</span></div>
+      <div class="card" style="padding:10px 12px;font-size:15px">
+        <span class="ln f"><i>P</i>(<i>x</i>) = (<i>x</i> <span id="bh">+ 0,50</span>)² <span id="bk" class="c-green">+ 0,75</span></span>
+        <span class="ln">Comme <span class="f">(<i>x</i> + <i>a</i>/2)² ≥ 0</span> :</span>
+        <span class="ln f"><i>P</i>(<i>x</i>) ≥ 1 − <i>a</i>²/4 = <span id="bk2">0,75</span></span>
+        <span class="ln mut" style="font-size:13.5px">ce minorant est atteint en <span class="f"><i>x</i><sub>0</sub> = −<i>a</i>/2</span> : c'est le minimum.</span>
+      </div>
+      <div class="verdict" id="vb"></div>
+    </div>
+  </div>
+
+  <div class="note">
+    <b class="t">Conclusion de l'exemple</b>
+    <span class="f"><i>P</i>(<i>x</i>) &gt; 0 pour tout <i>x</i></span> ⟸ <span class="f">1 − <i>a</i>²/4 &gt; 0</span> ⟺ <span class="f"><i>a</i>² &lt; 4</span> ⟺ <span class="f">|<i>a</i>| &lt; 2</span> ⟺ <b class="c-yellow"><span class="f"><i>a</i> ∈ ]−2 ; 2[</span></b>.
+    Ici, la réciproque est vraie aussi : le minorant <span class="f">1 − <i>a</i>²/4</span> est un <b>minimum</b> (atteint en <span class="f">−<i>a</i>/2</span>), donc si ce nombre est ≤ 0, la fonction prend bien une valeur ≤ 0. On retrouve d'ailleurs le résultat du discriminant : <span class="f">1 − <i>a</i>²/4 = −Δ/4</span> avec <span class="f">Δ = <i>a</i>² − 4</span>.
+  </div>
+
+  <div class="card" style="margin-top:22px">
+    <span class="tag">Pour aller un cran plus loin</span>
+    <h3>Un minorant qui n'est pas un minimum</h3>
+    <p>Sur ]0 ; +∞[, la fonction <span class="f"><i>f</i>(<i>x</i>) = 1/<i>x</i></span> est strictement positive, et <span class="f">0</span> est un minorant (car <span class="f">1/<i>x</i> &gt; 0</span>). Mais la courbe ne touche jamais l'axe : <span class="f">0</span> est un minorant <b>sans être un minimum</b>. Et aucun minorant strictement positif n'existe (si <span class="f"><i>m</i> &gt; 0</span>, alors <span class="f">1/<i>x</i> &lt; <i>m</i></span> dès que <span class="f"><i>x</i> &gt; 1/<i>m</i></span>). Autrement dit, la méthode du minorant positif est une condition <b>suffisante</b> : quand elle marche, <span class="f"><i>f</i> &gt; 0</span> est prouvé ; quand elle échoue, il faut regarder de plus près.</p>
+    <svg id="inv" class="plot" viewBox="0 0 300 190" style="max-width:420px;margin:6px auto 0" role="img" aria-label="La courbe 1/x s'approche de l'axe sans le toucher"></svg>
+  </div>
+</section>
+
+</div>
+
+<script>
+const NS='http://www.w3.org/2000/svg';
+function el(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e}
+function txt(parent,x,y,s,attrs){const t=el('text',Object.assign({x,y},attrs||{}),parent);t.textContent=s;return t}
+const fr=(v,d=2)=>(v<0?'−':'')+Math.abs(v).toFixed(d).replace('.',',');
+const ease=u=>u<.5?4*u*u*u:1-Math.pow(-2*u+2,3)/2;
+const Q=new URLSearchParams(location.search);
+const FROZEN=Q.has('t')?parseFloat(Q.get('t')):null;
+const REDUCED=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+const anims=[];let clock=REDUCED?6:0,last=null,stopAll=REDUCED;
+function loop(now){
+  if(FROZEN!==null)clock=FROZEN;else{if(last!==null&&!stopAll)clock+=(now-last)/1000;last=now}
+  for(const f of anims)f(clock);requestAnimationFrame(loop);
+}
+const RED='#ff6b6b',GRN='#52d97a',YEL='#ffd54a',BLU='#6cb6ff',INK='#f2f3f5',MUT='#a9afbb';
+
+/* ============ Exemple 3 : trois points, une parabole ============ */
+(function(){
+  const svg=document.getElementById('interp');
+  const X=x=>30+(x+1)*74,Y=y=>190-(y+.5)*26;
+  el('line',{x1:20,y1:Y(0),x2:292,y2:Y(0),stroke:MUT,'stroke-width':1.2},svg);
+  el('line',{x1:X(0),y1:196,x2:X(0),y2:12,stroke:MUT,'stroke-width':1.2},svg);
+  [1,2].forEach(k=>{el('line',{x1:X(k),x2:X(k),y1:Y(0)-3,y2:Y(0)+3,stroke:MUT},svg);txt(svg,X(k),Y(0)+15,k,{fill:MUT,'font-size':11,'text-anchor':'middle'})});
+  let d='';for(let i=0;i<=70;i++){const x=-1+3.5*i/70;d+=(i?'L':'M')+X(x).toFixed(1)+','+Y(x*x+1).toFixed(1)}
+  const curve=el('path',{d,fill:'none',stroke:RED,'stroke-width':3,'stroke-linecap':'round'},svg);
+  const len=curve.getTotalLength();curve.setAttribute('stroke-dasharray',len);
+  const pts=[[0,1,.5,'(0 ; 1)','P(0) = 1','s'],[1,2,1.4,'(1 ; 2)','P(1) = 2','s'],[2,5,2.3,'(2 ; 5)','P(2) = 5','e']];
+  const items=pts.map(([x,y,t0,lab,,side])=>{
+    const g=el('g',{},svg);
+    el('circle',{cx:X(x),cy:Y(y),r:6,fill:YEL,stroke:'#23262c','stroke-width':2},g);
+    const l=side==='s'?txt(g,X(x)+11,Y(y)+16,lab,{fill:YEL,'font-size':12.5,class:'halo'}):txt(g,X(x)-10,Y(y)-6,lab,{fill:YEL,'font-size':12.5,'text-anchor':'end',class:'halo'});
+    return {g,t0};
+  });
+  const cap=txt(svg,150,12,'',{fill:INK,'font-size':12.5,'text-anchor':'middle'});
+  cap.setAttribute('x',150);cap.setAttribute('y',22);
+  anims.push(t=>{
+    const T=11,p=((t%T)+T)%T;
+    items.forEach(i=>{const k=Math.min(1,Math.max(0,(p-i.t0)/.4));i.g.setAttribute('opacity',k)});
+    const u=Math.min(1,Math.max(0,(p-3.4)/2.4));curve.setAttribute('stroke-dashoffset',len*(1-ease(u)));
+    const fade=p>10.3?(T-p)/.7:1;svg.style.opacity=1;
+    curve.setAttribute('opacity',fade);items.forEach(i=>{if(p>10.3)i.g.setAttribute('opacity',fade)});
+    cap.textContent=p>5.9?'3 points ⇒ 1 seule parabole':'';cap.setAttribute('opacity',fade);
+  });
+})();
+
+/* ============ Animation A : la droite y = m monte ============ */
+(function(){
+  const svg=document.getElementById('A');
+  const f=x=>x*x+x+1,X=x=>50+(x+2.5)*115,Y=y=>350-(y+2.5)*44,MIN=.75,X0=-.5;
+  const PL=30,PR=535,PT=14,PB=352;
+  const defs=el('defs',{},svg);const cp=el('clipPath',{id:'clA'},defs);el('rect',{x:PL,y:PT,width:PR-PL,height:PB-PT},cp);
+  const g=el('g',{'clip-path':'url(#clA)'},svg);
+  const zone=el('rect',{x:PL,width:PR-PL,fill:GRN,opacity:.12},g);
+  // axes
+  el('line',{x1:PL,y1:Y(0),x2:PR,y2:Y(0),stroke:INK,'stroke-width':1.6},svg);
+  el('line',{x1:X(0),y1:PB,x2:X(0),y2:PT,stroke:INK,'stroke-width':1.6},svg);
+  txt(svg,PR-6,Y(0)-8,'x',{fill:MUT,'font-size':14,'font-style':'italic','text-anchor':'end'});
+  [1,2,3,4].forEach(k=>{el('line',{x1:X(0)-4,x2:X(0)+4,y1:Y(k),y2:Y(k),stroke:MUT},svg);txt(svg,X(0)+8,Y(k)+4,k,{fill:MUT,'font-size':11.5})});
+  [-2,-1].forEach(k=>{el('line',{x1:X(0)-4,x2:X(0)+4,y1:Y(k),y2:Y(k),stroke:MUT},svg);txt(svg,X(0)+8,Y(k)+4,'−'+(-k),{fill:MUT,'font-size':11.5})});
+  // courbe
+  let d='',pts=[];for(let i=0;i<=160;i++){const x=-2.5+4*i/160;pts.push([x,f(x)]);d+=(i?'L':'M')+X(x).toFixed(1)+','+Y(f(x)).toFixed(1)}
+  el('path',{d,fill:'none',stroke:RED,'stroke-width':3.2,'stroke-linejoin':'round'},g);
+  txt(svg,X(1.3)+6,Y(4.2),'f',{fill:RED,'font-size':18,'font-style':'italic','font-weight':700});
+  const viol=el('path',{fill:'none',stroke:'#fff','stroke-width':6,'stroke-linecap':'round',opacity:.9},g);
+  const line=el('line',{x1:PL,x2:PR,'stroke-width':3.4},svg);
+  const mLab=txt(svg,PR-6,0,'',{'font-size':15,'font-weight':700,'text-anchor':'end',class:'halo'});
+  const wit=el('line',{x1:X(X0),x2:X(X0),stroke:'#fff','stroke-width':2.5,'stroke-dasharray':'4 3'},svg);
+  const witL=txt(svg,X(X0)+10,0,'f(x₀) < m',{fill:'#fff','font-size':14,'font-weight':700,class:'halo'});
+  const dot=el('circle',{cx:X(X0),cy:Y(MIN),r:7,fill:YEL,stroke:'#23262c','stroke-width':2},svg);
+  const dLab=txt(svg,X(X0)-12,Y(MIN)+26,'',{fill:YEL,'font-size':14,'font-weight':700,'text-anchor':'end',class:'halo'});
+  // interface
+  const sl=document.getElementById('mSl'),btn=document.getElementById('aPlay');
+  const rows=[1,2,3].map(i=>document.getElementById('r'+i)),vd=document.getElementById('vd'),mv=document.getElementById('mv');
+  let auto=true;
+  const seg=[[0,1.6,-2.2,-1.2],[1.6,3.6,-1.2,-1.2],[3.6,5.0,-1.2,.4],[5.0,7.4,.4,.4],[7.4,8.7,.4,MIN],[8.7,11.4,MIN,MIN],[11.4,12.8,MIN,1.9],[12.8,15.2,1.9,1.9],[15.2,15.8,1.9,-2.2]];
+  const TOT=15.8;
+  const tl=t=>{const p=((t%TOT)+TOT)%TOT;for(const [a,b,m0,m1] of seg)if(p>=a&&p<b)return m0===m1?m0:m0+(m1-m0)*ease((p-a)/(b-a));return -2.2};
+  function setRow(r,ok,neutral){r.className='row '+(neutral?'':(ok?'yes':'no'));r.firstChild.textContent=neutral?'·':(ok?'✓':'✗')}
+  function render(m){
+    const eps=.03;let state=m<=0?'neg':(m<MIN-eps?'pos':(m<=MIN+eps?'min':'bad'));
+    if(state==='min')m=MIN;
+    sl.value=m;mv.textContent=fr(m);
+    const y=Y(m);line.setAttribute('y1',y);line.setAttribute('y2',y);
+    zone.setAttribute('y',y);zone.setAttribute('height',Math.max(0,PB-y));
+    const col=state==='bad'?'#9aa0ac':(state==='min'?YEL:GRN);
+    line.setAttribute('stroke',col);line.setAttribute('stroke-dasharray',state==='bad'?'8 6':'0');
+    zone.setAttribute('fill',col);zone.setAttribute('opacity',state==='bad'?0:.12);
+    mLab.textContent='y = m';mLab.setAttribute('fill',col);mLab.setAttribute('y',Math.min(PB-6,Math.max(PT+16,y-9)));
+    // parties de la courbe sous la droite
+    let dv='',on=false;for(const [x,fy] of pts){if(fy<m-1e-9){dv+=(on?'L':'M')+X(x).toFixed(1)+','+Y(fy).toFixed(1);on=true}else on=false}
+    viol.setAttribute('d',state==='bad'?dv:'');
+    const showW=state==='bad';
+    wit.setAttribute('opacity',showW?1:0);wit.setAttribute('y1',Y(MIN));wit.setAttribute('y2',y);
+    witL.setAttribute('opacity',showW?1:0);witL.setAttribute('y',(Y(MIN)+y)/2+5);
+    dLab.textContent=state==='min'?'minimum : (−1/2 ; 3/4)':'';
+    setRow(rows[0],state!=='bad');setRow(rows[1],state==='min');setRow(rows[2],m>0);
+    const V={
+      neg:['neg','<b>m est un minorant, mais il est négatif.</b> Ce m ne permet pas de conclure sur le signe de f : un minorant négatif est compatible avec une fonction qui prend des valeurs négatives.'],
+      pos:['pos','<b>m est un minorant strictement positif.</b> Donc f(x) ≥ m > 0 : <b>f est strictement positive</b>. C\'est exactement ce qu\'on cherchait.'],
+      min:['min','<b>m = 3/4 est le minimum.</b> C\'est le plus grand des minorants : la droite touche la courbe en x₀ = −1/2. Il est &gt; 0, donc f &gt; 0.'],
+      bad:['bad','<b>m n\'est pas un minorant.</b> En x₀ = −1/2, f(x₀) = 3/4 &lt; m : un seul point sous la droite suffit à invalider ∀x, f(x) ≥ m.']
+    }[state];
+    vd.className='verdict '+V[0];vd.innerHTML=V[1];
+  }
+  anims.push(t=>{if(auto)render(tl(t))});
+  sl.addEventListener('input',()=>{auto=false;btn.textContent='▶ Reprendre';let m=parseFloat(sl.value);render(m)});
+  btn.addEventListener('click',()=>{if(auto){auto=false;btn.textContent='▶ Reprendre'}else{auto=true;btn.textContent='⏸ Pause'}});
+  if(REDUCED){auto=true}
+})();
+
+/* ============ Animation B : x² + ax + 1, a varie ============ */
+(function(){
+  const svg=document.getElementById('B');
+  const X=x=>50+(x+4)*57.5,Y=y=>40+(5-y)*40;
+  const PL=40,PR=525,PT=26,PB=322;
+  const defs=el('defs',{},svg);const cp=el('clipPath',{id:'clB'},defs);el('rect',{x:PL,y:PT,width:PR-PL,height:PB-PT},cp);
+  const g=el('g',{'clip-path':'url(#clB)'},svg);
+  el('line',{x1:PL,y1:Y(0),x2:PR,y2:Y(0),stroke:INK,'stroke-width':1.6},svg);
+  el('line',{x1:X(0),y1:PB,x2:X(0),y2:PT,stroke:INK,'stroke-width':1.6},svg);
+  txt(svg,PR-6,Y(0)+18,'x',{fill:MUT,'font-size':14,'font-style':'italic','text-anchor':'end'});
+  [1,2,3,4].forEach(k=>{el('line',{x1:X(0)-4,x2:X(0)+4,y1:Y(k),y2:Y(k),stroke:MUT},svg);txt(svg,X(0)+8,Y(k)+4,k,{fill:MUT,'font-size':11.5})});
+  [-1,-2].forEach(k=>{el('line',{x1:X(0)-4,x2:X(0)+4,y1:Y(k),y2:Y(k),stroke:MUT},svg);txt(svg,X(0)+8,Y(k)+4,'−'+(-k),{fill:MUT,'font-size':11.5})});
+  const gap=el('line',{stroke:GRN,'stroke-width':4,'stroke-linecap':'round'},svg);
+  const kl=el('line',{x1:PL,x2:PR,stroke:GRN,'stroke-width':2.2,'stroke-dasharray':'7 5'},svg);
+  const curve=el('path',{fill:'none',stroke:RED,'stroke-width':3.2,'stroke-linejoin':'round'},g);
+  const viol=el('path',{fill:'none',stroke:'#fff','stroke-width':6,'stroke-linecap':'round',opacity:.9},g);
+  const r1=el('circle',{r:5.5,fill:YEL,stroke:'#23262c','stroke-width':2},svg),r2=el('circle',{r:5.5,fill:YEL,stroke:'#23262c','stroke-width':2},svg);
+  const vt=el('circle',{r:7,fill:YEL,stroke:'#23262c','stroke-width':2},svg);
+  const kLab=txt(svg,PR-6,0,'',{'font-size':14.5,'font-weight':700,'text-anchor':'end',class:'halo'});
+  const sl=document.getElementById('aSl'),btn=document.getElementById('bPlay');
+  const av=document.getElementById('av'),bh=document.getElementById('bh'),bk=document.getElementById('bk'),bk2=document.getElementById('bk2'),vb=document.getElementById('vb');
+  let auto=true;
+  function render(a){
+    if(Math.abs(Math.abs(a)-2)<.035)a=Math.sign(a)*2;
+    sl.value=a;av.textContent=fr(a);
+    const k=1-a*a/4,h=a/2,state=k>1e-9?'pos':(Math.abs(k)<=1e-9?'zero':'neg');
+    let d='',dv='',on=false;
+    for(let i=0;i<=200;i++){const x=-4+8*i/200,y=x*x+a*x+1;d+=(i?'L':'M')+X(x).toFixed(1)+','+Y(y).toFixed(1);
+      if(y<-1e-9){dv+=(on?'L':'M')+X(x).toFixed(1)+','+Y(y).toFixed(1);on=true}else on=false}
+    curve.setAttribute('d',d);viol.setAttribute('d',dv);
+    vt.setAttribute('cx',X(-h));vt.setAttribute('cy',Y(k));
+    const col=state==='pos'?GRN:(state==='zero'?YEL:'#fff');
+    kl.setAttribute('y1',Y(k));kl.setAttribute('y2',Y(k));kl.setAttribute('stroke',col);
+    if(state==='pos'){gap.setAttribute('x1',X(-h)+14);gap.setAttribute('x2',X(-h)+14);gap.setAttribute('y1',Y(0));gap.setAttribute('y2',Y(k));gap.setAttribute('opacity',1)}else gap.setAttribute('opacity',0);
+    if(state==='neg'){const s=Math.sqrt(a*a-4);[[r1,(-a-s)/2],[r2,(-a+s)/2]].forEach(([c,x])=>{c.setAttribute('cx',X(x));c.setAttribute('cy',Y(0));c.setAttribute('opacity',1)})}
+    else if(state==='zero'){r1.setAttribute('cx',X(-h));r1.setAttribute('cy',Y(0));r1.setAttribute('opacity',1);r2.setAttribute('opacity',0)}
+    else{r1.setAttribute('opacity',0);r2.setAttribute('opacity',0)}
+    kLab.textContent='y = 1 − a²/4 = '+fr(k);kLab.setAttribute('fill',col==='#fff'?'#fff':col);
+    kLab.setAttribute('y',k<-1.4?Y(k)-10:Y(k)+(k>.6?-10:18)); // évite de sortir du cadre
+    bh.textContent=(h<0?'− ':'+ ')+fr(Math.abs(h));bk.textContent=(k<0?'− ':'+ ')+fr(Math.abs(k));bk.className=state==='pos'?'c-green':(state==='zero'?'c-yellow':'');bk2.textContent=fr(k);
+    const V={
+      pos:['pos','<b>Le minimum est &gt; 0.</b> Donc P(x) ≥ 1 − a²/4 &gt; 0 : <b>P est strictement positif pour tout x</b>. La courbe ne coupe pas l\'axe.'],
+      zero:['min','<b>Le minimum vaut exactement 0</b> (a = ±2) : P(x) ≥ 0 et P s\'annule en x₀ = −a/2. La courbe touche l\'axe : P n\'est <b>pas</b> strictement positif.'],
+      neg:['bad','<b>Le minimum est &lt; 0</b> : P prend des valeurs négatives (en blanc), entre ses deux racines. Ce n\'est pas positif partout.']
+    }[state];
+    vb.className='verdict '+V[0];vb.innerHTML=V[1];
+  }
+  anims.push(t=>{if(auto)render(3*Math.sin(2*Math.PI*t/24+Math.asin(1/3)))});
+  sl.addEventListener('input',()=>{auto=false;btn.textContent='▶ Reprendre';render(parseFloat(sl.value))});
+  btn.addEventListener('click',()=>{if(auto){auto=false;btn.textContent='▶ Reprendre'}else{auto=true;btn.textContent='⏸ Pause'}});
+})();
+
+/* ============ 1/x : un minorant qui n'est pas un minimum ============ */
+(function(){
+  const svg=document.getElementById('inv');
+  const X=x=>30+(x-.2)*55,Y=y=>166-y*36;
+  el('line',{x1:16,y1:Y(0),x2:292,y2:Y(0),stroke:GRN,'stroke-width':3.4},svg);
+  txt(svg,290,Y(0)+16,'y = 0 (minorant)',{fill:GRN,'font-size':12,'text-anchor':'end'});
+  el('line',{x1:X(0.2),y1:Y(0),x2:X(0.2),y2:8,stroke:MUT,'stroke-width':1.2},svg);
+  let d='';for(let i=0;i<=120;i++){const x=.25+4.75*i/120;d+=(i?'L':'M')+X(x).toFixed(1)+','+Y(1/x).toFixed(1)}
+  el('path',{d,fill:'none',stroke:RED,'stroke-width':3},svg);
+  const link=el('line',{stroke:'#fff','stroke-width':1.6,'stroke-dasharray':'4 3'},svg);
+  const dot=el('circle',{r:6,fill:YEL,stroke:'#23262c','stroke-width':2},svg);
+  const lab=txt(svg,60,16,'',{fill:INK,'font-size':12.5});
+  anims.push(t=>{
+    const T=8,p=((t%T)+T)%T,u=ease(Math.min(1,p/6.5)),x=.3+u*4.65;
+    dot.setAttribute('cx',X(x));dot.setAttribute('cy',Y(1/x));
+    link.setAttribute('x1',X(x));link.setAttribute('x2',X(x));link.setAttribute('y1',Y(1/x));link.setAttribute('y2',Y(0));
+    lab.textContent='x = '+fr(x,1)+'  ;  1/x = '+fr(1/x,2)+'  (> 0)';
+  });
+})();
+
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
