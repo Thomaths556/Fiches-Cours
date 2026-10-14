@@ -1,0 +1,1422 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Comprendre — Les matrices</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+
+<style>
+  :root{
+    --ink:#2D2D30;
+    --ink-soft:#78787D;
+    --rule:#E4E4E7;
+    --card:#F7F7F8;
+    --blue:#285AC4;
+    --teal:#0F766E;
+    --red:#BC443A;
+    --blue-soft:#EAF0FB;
+    --teal-soft:#E7F4F2;
+    --max:760px;
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+    color:var(--ink);
+    background:#FFFFFF;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  h1,h2,h3{
+    font-family:'Poppins',sans-serif;
+    font-weight:600;
+    line-height:1.22;
+    letter-spacing:-.01em;
+    margin:0 0 .6em 0;
+  }
+
+  h1{font-size:clamp(2.3rem,5.6vw,3.6rem); font-weight:700; letter-spacing:-.025em;}
+  h2{font-size:clamp(1.65rem,3.6vw,2.35rem); letter-spacing:-.018em;}
+  h3{font-size:1.05rem; letter-spacing:-.005em;}
+
+  p{margin:0 0 1em 0;}
+  .lede{color:var(--ink-soft); font-size:clamp(1.1rem,2vw,1.25rem); font-weight:400; line-height:1.6;}
+
+  .accent-blue{color:var(--blue); font-weight:600;}
+  .accent-teal{color:var(--teal); font-weight:600;}
+  .accent-red{color:var(--red); font-weight:600;}
+
+  /* progress bar */
+  #progress{
+    position:fixed; top:0; left:0; height:2px; width:0%;
+    background:var(--blue); z-index:1000; transition:width .05s linear;
+    opacity:.75;
+  }
+
+  section{
+    padding:clamp(5rem,12vh,8.5rem) 1.5rem;
+    max-width:var(--max);
+    margin:0 auto;
+    min-height:60vh;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+  }
+  section.wide{max-width:980px;}
+
+  .step-tag{
+    display:inline-block;
+    font-family:'Poppins',sans-serif;
+    font-size:.75rem;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    border:1px solid var(--rule);
+    border-radius:999px;
+    padding:.3em .9em;
+    margin-bottom:1.4em;
+  }
+
+  .card{
+    background:var(--card);
+    border:1px solid var(--rule);
+    border-radius:20px;
+    padding:1.8em 2em;
+    margin:1.8em 0;
+  }
+  .card h3{margin-top:0; display:flex; align-items:center; gap:.5em;}
+  .card.retain{
+    border-color:transparent;
+    background:var(--blue-soft);
+  }
+  .card.retain h3{color:var(--blue);}
+
+  .divider{
+    height:1px; background:var(--rule); border:none; margin:0 auto;
+    max-width:var(--max); width:100%;
+  }
+
+  .katex-display{margin:1em 0; overflow-x:auto; overflow-y:hidden;}
+  .demo-line{overflow-x:auto; overflow-y:hidden;}
+  .formula-row{
+    display:flex; gap:2.5em; flex-wrap:wrap; align-items:center;
+    margin:1.2em 0;
+  }
+
+  .grid-2{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:2.5rem;
+    align-items:center;
+  }
+  @media (max-width:760px){
+    .grid-2{grid-template-columns:1fr;}
+    section.wide{max-width:var(--max);}
+  }
+
+  .anim-box{
+    background:var(--card);
+    border-radius:20px;
+    padding:1.2rem;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:.8rem;
+    position:relative;
+  }
+  .a3-corner{
+    position:absolute; top:.9rem; left:1.1rem;
+    font-size:.85rem; opacity:0; transition:opacity .5s ease;
+  }
+  .anim-box svg{width:100%; height:auto; max-width:340px;}
+  .anim-box svg#anim3-svg{max-width:560px;}
+
+  .readout{
+    font-family:'Inter',sans-serif;
+    font-size:.95rem;
+    display:flex;
+    gap:1.4em;
+    flex-wrap:wrap;
+    justify-content:center;
+  }
+  .readout span.val{
+    font-variant-numeric:tabular-nums;
+    font-weight:600;
+  }
+  .readout .r-cos .val{color:var(--blue);}
+  .readout .r-sin .val{color:var(--teal);}
+  .readout .r-theta .val{color:var(--ink);}
+
+  .live-matrix{
+    font-family:'Inter',sans-serif;
+    font-size:.9rem;
+    text-align:center;
+    color:var(--ink-soft);
+  }
+  .live-matrix .mtx{
+    display:inline-grid;
+    grid-template-columns:auto auto;
+    gap:.15em .8em;
+    font-variant-numeric:tabular-nums;
+    font-weight:600;
+    color:var(--ink);
+    border-left:2px solid var(--rule);
+    border-right:2px solid var(--rule);
+    padding:.2em .7em;
+    margin-top:.4em;
+  }
+
+  a.discreet{
+    color:var(--ink-soft);
+    font-size:.9rem;
+    text-decoration:none;
+    border-bottom:1px dotted var(--ink-soft);
+  }
+  a.discreet:hover{color:var(--blue); border-color:var(--blue);}
+
+  .hero{
+    min-height:92vh;
+    justify-content:center;
+  }
+  .hero .kicker{
+    font-family:'Poppins',sans-serif;
+    font-size:.78rem;
+    font-weight:600;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--blue);
+    margin-bottom:1.1em;
+  }
+  .plane-wrap{
+    display:flex; justify-content:center; margin:2.4em 0;
+  }
+  .sensor-cards{
+    display:flex; gap:1em; margin:2.2em 0; flex-wrap:wrap; justify-content:center; align-items:center;
+  }
+  .sensor-card{
+    background:var(--card);
+    border:1px solid var(--rule);
+    border-radius:16px;
+    padding:1.1em 1.6em;
+    min-width:170px;
+    text-align:center;
+  }
+  .sensor-card .label{font-size:.72rem; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.08em; font-weight:500;}
+  .sensor-card .value{font-family:'Poppins',sans-serif; font-weight:600; margin-top:.35em; font-size:1.05rem;}
+  .sensor-arrow{
+    display:flex; align-items:center; justify-content:center;
+    font-size:.78rem; color:var(--ink-soft); flex-direction:column; gap:.35em;
+    padding:0 .4em;
+  }
+
+  .scroll-cue{
+    margin-top:3em; text-align:center; color:var(--ink-soft); font-size:.85rem;
+    animation:bob 2s ease-in-out infinite;
+  }
+  @keyframes bob{
+    0%,100%{transform:translateY(0);}
+    50%{transform:translateY(6px);}
+  }
+
+  .placeholder-anim{
+    background:var(--card);
+    border:1.5px dashed var(--rule);
+    border-radius:20px;
+    padding:2.4rem 1.6rem;
+    text-align:center;
+    color:var(--ink-soft);
+    font-size:.9rem;
+  }
+  .placeholder-anim .badge{
+    display:inline-block;
+    font-family:'Poppins',sans-serif;
+    font-size:.7rem;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    background:#fff;
+    border:1px solid var(--rule);
+    border-radius:999px;
+    padding:.3em .8em;
+    margin-bottom:.8em;
+  }
+
+  /* ---------- Falk table (règle du sémaphore, animée) ---------- */
+  .falk-wrap{
+    display:flex; flex-direction:column; align-items:center; gap:1.6em;
+    padding:1.6em .5em .5em;
+  }
+  .falk-grid{
+    display:grid;
+    grid-template-columns:auto auto;
+    grid-template-rows:auto auto;
+    grid-template-areas:
+      "empty B"
+      "A AB";
+    row-gap:1.2rem; column-gap:1.6rem;
+    align-items:end;
+    justify-items:start;
+  }
+  .falk-mat{
+    display:grid;
+    grid-template-columns:repeat(2,60px);
+    gap:.5rem .6rem;
+    padding:.55rem 1.1rem;
+    position:relative;
+  }
+  .falk-mat::before, .falk-mat::after{
+    content:"";
+    position:absolute; top:2px; bottom:2px; width:9px;
+    border:2px solid var(--rule); border-radius:9px;
+  }
+  .falk-mat::before{left:-2px; border-right:none; border-radius:9px 0 0 9px;}
+  .falk-mat::after{right:-2px; border-left:none; border-radius:0 9px 9px 0;}
+  .falk-b{grid-area:B;}
+  .falk-a{grid-area:A;}
+  .falk-ab{grid-area:AB;}
+  .falk-ab::before, .falk-ab::after{border-color:var(--ink);}
+  .falk-empty{grid-area:empty;}
+
+  .falk-coef{
+    font-family:'Inter',sans-serif;
+    font-weight:600;
+    font-size:1.05rem;
+    text-align:center;
+    font-style:italic;
+    padding:.15em 0;
+    border-radius:8px;
+    transition:transform .35s cubic-bezier(.4,0,.2,1), box-shadow .35s ease, background .35s ease;
+  }
+  .falk-coef.k0{color:var(--blue);}
+  .falk-coef.k1{color:var(--teal);}
+  .falk-coef.pulse{
+    transform:scale(1.16);
+    box-shadow:0 0 0 4px color-mix(in srgb, currentColor 16%, transparent);
+  }
+  .falk-coef.k0.pulse{background:var(--blue-soft);}
+  .falk-coef.k1.pulse{background:var(--teal-soft);}
+
+  .falk-result-cell{
+    font-family:'Inter',sans-serif;
+    font-size:.74rem;
+    font-weight:600;
+    text-align:center;
+    display:flex; align-items:center; justify-content:center;
+    min-height:1.6em;
+    white-space:nowrap;
+    opacity:0;
+    transform:translateY(4px);
+    transition:opacity .5s ease, transform .5s ease;
+  }
+  .falk-result-cell.filled{opacity:1; transform:translateY(0);}
+
+  .falk-formula{
+    font-size:1.05rem;
+    min-height:1.6em;
+    display:flex; align-items:center; justify-content:center;
+  }
+
+  /* ---------- static derivation schema ---------- */
+  .schema-wrap{
+    display:flex; align-items:flex-end; justify-content:center;
+    gap:1.6rem; flex-wrap:wrap;
+    padding:1.4em .5em .6em;
+  }
+  .schema-block{display:flex; flex-direction:column; align-items:center; gap:.6em;}
+  .schema-op{
+    font-family:'Poppins',sans-serif; font-size:1.3rem; color:var(--ink-soft);
+    padding-bottom:1.6em;
+  }
+  .schema-tag{
+    font-family:'Inter',sans-serif; font-size:.78rem; font-weight:600;
+    font-style:italic; color:var(--ink-soft);
+  }
+  .schema-dim{opacity:.32;}
+  .schema-input{
+    font-family:'Inter',sans-serif; font-weight:700; font-style:italic;
+    font-size:1.2rem; color:var(--ink-soft);
+    transition:color .35s ease, transform .35s ease;
+  }
+  .schema-input.pulse-ux{color:var(--blue); transform:scale(1.2);}
+  .demo-wrap{ display:flex; flex-direction:column; align-items:center; gap:.4em; padding:1em .5em; }
+  .demo-step{
+    opacity:0;
+    transform:translateY(6px);
+    transition:opacity .5s ease, transform .5s ease;
+  }
+  .demo-step.show{ opacity:1; transform:translateY(0); }
+  .demo-line{
+    min-height:1.9em;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin:.2em 0;
+  }
+  .demo-rowlabels{
+    display:grid; grid-template-rows:repeat(2,1fr); row-gap:.5rem;
+    padding:.55rem 0;
+    position:absolute; left:100%; top:0; bottom:0;
+    margin-left:.4em; font-size:.85rem; color:var(--ink-soft);
+  }
+  .demo-rowlabels span{ display:flex; align-items:center; }
+  #demo-B{ position:relative; margin-right:2.2em; }
+  .demo-collabels{
+    display:grid; grid-template-columns:repeat(2,60px); gap:0 .6rem;
+    padding:.35em 1.1rem 0;
+  }
+  .demo-collabel{
+    font-size:.68rem; font-weight:600; text-align:center;
+    opacity:0; transition:opacity .5s ease;
+  }
+  .schema-result{
+    font-family:'Inter',sans-serif;
+    font-size:.74rem;
+    font-weight:600;
+    text-align:center;
+    display:flex; align-items:center; justify-content:center;
+    min-height:1.6em;
+    white-space:nowrap;
+  }
+
+  footer{
+    text-align:center;
+    padding:4rem 1.5rem 6rem;
+    color:var(--ink-soft);
+    font-size:.85rem;
+  }
+
+  /* reveal on scroll */
+  .reveal{
+    opacity:0;
+    transform:translateY(18px);
+    transition:opacity .6s ease, transform .6s ease;
+  }
+  .reveal.visible{
+    opacity:1;
+    transform:translateY(0);
+  }
+
+  .section-num{
+    font-family:'Poppins',sans-serif;
+    font-weight:600;
+    font-size:.76rem;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    color:var(--blue);
+    margin-bottom:.9em;
+  }
+
+
+  /* ---------- hero diagram: single reference frame on the plane photo ---------- */
+  .intro-visual{
+    margin:2.6em 0 1.8em;
+    padding:1.4rem 1.4rem 1.1rem;
+    background:var(--card);
+    border:1px solid var(--rule);
+    border-radius:24px;
+    overflow:hidden;
+  }
+  .intro-visual svg{display:block; width:100%; height:auto;}
+  .intro-caption{
+    margin:.6rem auto 0;
+    max-width:520px;
+    text-align:center;
+    color:var(--ink-soft);
+    font-size:.9rem;
+  }
+
+  /* ---------- matrix-vector laboratory ---------- */
+  .mv-layout{
+    display:grid;
+    grid-template-columns:minmax(0,1.1fr) minmax(260px,.9fr);
+    gap:2rem;
+    align-items:center;
+  }
+  @media(max-width:780px){.mv-layout{grid-template-columns:1fr;}}
+  .mv-controls{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+  .mv-controls label{display:flex;flex-direction:column;gap:.35rem;font-size:.86rem;color:var(--ink-soft);}
+  .mv-controls input{width:100%;accent-color:var(--blue);}
+  .mv-value{font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;}
+  .mv-equation{margin-top:1.2rem;text-align:center;min-height:4.4rem;}
+  .mini-note{font-size:.9rem;color:var(--ink-soft);}
+  .comparison-grid{display:grid;grid-template-columns:1fr auto 1fr;gap:1rem;align-items:center;margin-top:1.2rem;}
+  @media(max-width:700px){.comparison-grid{grid-template-columns:1fr}.comparison-grid .neq{transform:rotate(90deg);}}
+  .comparison-box{background:#fff;border:1px solid var(--rule);border-radius:18px;padding:1.2rem .7rem;text-align:center;min-width:0;}
+  .comparison-box .katex-display{overflow-x:auto; overflow-y:hidden; padding:.2em 0; font-size:.82em;}
+  .neq{font-family:'Poppins',sans-serif;font-size:1.4rem;color:var(--ink-soft); text-align:center;}
+  details.detail-card{background:var(--card);border:1px solid var(--rule);border-radius:18px;padding:1rem 1.2rem;margin-top:1.2rem;}
+  details.detail-card summary{cursor:pointer;font-weight:600;color:var(--blue);}
+  .summary-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1.4rem 1rem;margin-top:1.5rem;}
+  @media(max-width:650px){.summary-grid{grid-template-columns:1fr;}}
+  .summary-item{border-top:1px solid var(--rule);padding-top:.9rem;}
+  .summary-item strong{display:block;color:var(--blue);margin-bottom:.3rem;}
+
+</style>
+</head>
+<body>
+
+<div id="progress"></div>
+
+<!-- ============ SECTION 0 — ACCROCHE ============ -->
+<section class="hero" id="s0">
+  <div class="kicker reveal">Comprendre · Matrices</div>
+  <h1 class="reveal">Pourquoi a-t-on besoin d'une matrice ?</h1>
+  <p class="lede reveal">
+    Un avion monte en altitude. Ses capteurs embarqués — par exemple les
+    accéléromètres de sa centrale inertielle — mesurent des grandeurs suivant
+    les axes propres de l'avion&nbsp;: vers l'avant, sur le côté et verticalement.
+  </p>
+
+  <div class="intro-visual reveal">
+    <svg viewBox="0 0 470 285" role="img" aria-label="L'avion en montée : ses axes propres u_r et u_theta, vus dans le repère du sol u_x, u_y.">
+      <defs>
+        <marker id="heroArrowInk" markerWidth="9" markerHeight="9" refX="7.5" refY="4.5" orient="auto"><path d="M0,0.6 L8.4,4.5 L0,8.4 Z" fill="#2D2D30"/></marker>
+        <marker id="heroArrowBlue" markerWidth="9" markerHeight="9" refX="7.5" refY="4.5" orient="auto"><path d="M0,0.6 L8.4,4.5 L0,8.4 Z" fill="#285AC4"/></marker>
+        <marker id="heroArrowTeal" markerWidth="9" markerHeight="9" refX="7.5" refY="4.5" orient="auto"><path d="M0,0.6 L8.4,4.5 L0,8.4 Z" fill="#0F766E"/></marker>
+      </defs>
+
+      <!-- Aircraft centred on the frame origin. The fuselage already rises 5.06°
+           in the source image, so rotate(-16.94) sets a 22° climb, and the
+           translate puts the fuselage axis exactly through the origin. -->
+      <g transform="translate(223.2,215.7) rotate(-16.94)">
+        <image href="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAMCAgICAgMCAgIDAwMDBAYEBAQEBAgGBgUGCQgKCgkICQkKDA8MCgsOCwkJDRENDg8QEBEQCgwSExIQEw8QEBD/2wBDAQMDAwQDBAgEBAgQCwkLEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBD/wAARCAFoAWgDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD9PaKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigApk0EU6lJow6nsRT6KAOVv/7Wg8qfSbe1uvKjbzIJJNjv/utVWw8W6Rfz+RcebYXUX7uSC7j2turaqpq2g2GrW/8Ap9vF/wBdI/kdP91q1/d1f4n3mRu+dZ/9M+mzt93/AAqxXltxpPiXwz/yCLiW6tYv9ZHJHu2J/tLWvo/xOt5ExrNv5Leq0nTfQaqLqd3RVWw1TT9TTzLG7jmA/unn8qtVmaBRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFAGLWZ4k8FWGoN9qEUiyDrKh/wDQh3FdbVd7aziyzKELehP6CtKVV0tjP2aPIb/Sde8NT/aP3sX/ADznt5G2vWro/wARNQsU8u+iW4U/xp8v6Gu2nt/+uX72P95HJ9165fV/BVvP/pGk+Vay/wDPP/lk9bfxf8jE6DSfFWm6rzpctvz1jI2Ma2FjtpR5jS4Y8kZA5rxW/sLiwn/0+CWKX/PzK1amkeLdesP+Xj7VF/00kb/x1qPZfI19qer+Tp/qn/ff/wBerVcZpPxD06dvLu5PszDolxwP+/nT9K2P9H/8h/u5P4XrL2Ux+1Rt0UUVkaBRRRQAUUUUAFFFFABRRRQAUUVD/otmP+Wce7/dXP8AKgCaisf+2V/57n8hVeXUft4CypMgHIFa+xmZe2ga3k6f6p/33/8AXo8nT/VP++//AK9M/tH/AGU/76pPt7+i0eyqD9qi358H/PZP++hUm1v7p/Kq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AFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAf/Z" x="-120" y="-120" width="240" height="240"/>
+      </g>
+
+      <!-- ground reference frame -->
+      <line x1="215" y1="190" x2="425" y2="190" stroke="#2D2D30" stroke-width="1.5" marker-end="url(#heroArrowInk)"/>
+      <line x1="215" y1="190" x2="215" y2="34" stroke="#2D2D30" stroke-width="1.5" marker-end="url(#heroArrowInk)"/>
+      <text x="433" y="195" font-family="Inter" font-size="14" font-weight="600" fill="#2D2D30">u<tspan baseline-shift="sub" font-size="10">x</tspan></text>
+      <text x="196" y="26" font-family="Inter" font-size="14" font-weight="600" fill="#2D2D30">u<tspan baseline-shift="sub" font-size="10">y</tspan></text>
+
+      <!-- the aircraft's own axes, drawn over the plane: u_r along the fuselage -->
+      <line x1="215" y1="190" x2="405.1" y2="113.2" stroke="#285AC4" stroke-width="2.8" marker-end="url(#heroArrowBlue)"/>
+      <line x1="215" y1="190" x2="158.8" y2="50.9" stroke="#0F766E" stroke-width="2.8" marker-end="url(#heroArrowTeal)"/>
+      <text x="404" y="103" font-family="Inter" font-size="14" font-weight="600" fill="#285AC4">u<tspan baseline-shift="sub" font-size="10">r</tspan></text>
+      <text x="132" y="44" font-family="Inter" font-size="14" font-weight="600" fill="#0F766E">u<tspan baseline-shift="sub" font-size="10">θ</tspan></text>
+
+      <circle cx="215" cy="190" r="3.4" fill="#2D2D30"/>
+    </svg>
+    <p class="intro-caption">Les axes propres de l’avion — u<sub>r</sub>, u<sub>θ</sub> — vus dans le repère du sol u<sub>x</sub>, u<sub>y</sub>.</p>
+  </div>
+
+  <p class="reveal">
+    Pour exploiter cette même mesure depuis le sol, il faut la
+    <strong>réexprimer</strong> suivant les axes terrestres. La grandeur physique
+    ne change pas&nbsp;: seule sa description change. La matrice est l'outil qui
+    réalise cette conversion de coordonnées.
+  </p>
+
+  <div class="scroll-cue reveal">scroller pour construire cette matrice ↓</div>
+</section>
+
+<hr class="divider">
+
+<!-- ============ SECTION 1 — CONSTRUIRE LA MATRICE ============ -->
+<section class="wide" id="s1">
+  <div class="section-num reveal">01 · Construire la matrice</div>
+  <h2 class="reveal">L'avion en montée</h2>
+  <p class="reveal">
+    L'avion a ses propres axes&nbsp;: <span class="accent-blue">u<sub>r</sub></span>
+    et <span class="accent-teal">u<sub>θ</sub></span>.
+    Vus depuis le sol, ces deux axes tournent avec l'angle θ.
+  </p>
+
+  <div class="grid-2">
+    <div class="anim-box reveal">
+      <svg id="anim1-svg" viewBox="0 0 340 340"></svg>
+      <div class="readout">
+        <span class="r-theta">θ = <span class="val" id="a1-theta">0°</span></span>
+        <span class="r-cos">cos θ = <span class="val" id="a1-cos">1.00</span></span>
+        <span class="r-sin">sin θ = <span class="val" id="a1-sin">0.00</span></span>
+      </div>
+      <div class="live-matrix">
+        R<sub>θ</sub> ≈
+        <span class="mtx">
+          <span id="a1-m00">1.00</span><span id="a1-m01">0.00</span>
+          <span id="a1-m10">0.00</span><span id="a1-m11">1.00</span>
+        </span>
+      </div>
+    </div>
+
+    <div class="reveal">
+      <p>Les coordonnées des axes de l'avion, exprimées dans le repère du sol&nbsp;:</p>
+      <div id="f-ur"></div>
+      <div id="f-utheta"></div>
+      <p>La matrice R<sub>θ</sub> qui rassemble les coordonnées des nouveaux
+        vecteurs représente la transformation&nbsp;:</p>
+      <div id="f-Rtheta"></div>
+    </div>
+  </div>
+
+  <div class="card retain reveal">
+    <h3>À retenir</h3>
+    <p style="margin:0;">
+      Dans cet exemple, la matrice rassemble les coordonnées des deux axes de
+      l'avion vus depuis le sol. Chaque colonne décrit l'un de ces axes.
+      Elle permet ensuite de convertir une mesure exprimée dans les axes de
+      l'avion vers les axes terrestres.
+    </p>
+  </div>
+
+  <p class="reveal">
+    <a class="discreet" href="#" onclick="return false;">
+      → Pour revoir ce que sont vraiment une « base » et une « application » : fiche Linéarité, bases et espaces vectoriels
+    </a>
+  </p>
+</section>
+
+<hr class="divider">
+
+<!-- ============ SECTION 3 — LA COMPOSITION ============ -->
+<section class="wide" id="s3">
+  <div class="section-num reveal">02 · La composition</div>
+  <h2 class="reveal">Enchaîner deux transformations</h2>
+  <p class="reveal">
+    Une matrice est la <span class="accent-blue">représentation calculable</span>
+    d'une transformation linéaire. Soit A et B les matrices associées à deux
+    transformations f et g. Appliquer g puis f, c'est f∘g — et cela correspond
+    au produit matriciel AB.
+  </p>
+
+  <div class="grid-2">
+    <div class="anim-box reveal">
+      <svg id="anim2-svg" viewBox="0 0 340 340"></svg>
+      <div class="readout" id="anim2-readout">
+        <span class="r-cos">g&nbsp;: <span class="val" id="a2-beta" style="color:var(--teal);">0°</span></span>
+        <span class="r-sin">f&nbsp;: <span class="val" id="a2-alpha" style="color:var(--blue);">0°</span></span>
+      </div>
+      <div class="live-matrix" id="a2-label">u<sub>x</sub></div>
+    </div>
+
+    <div class="reveal">
+      <p>Dans l'animation, <em>g</em> effectue d'abord une rotation, puis
+        <em>f</em> étire horizontalement le résultat. Pour calculer
+        (f∘g)(u<sub>x</sub>), on va chercher directement dans les tableaux ce
+        dont on a besoin.</p>
+    </div>
+  </div>
+
+  <div class="reveal demo-wrap">
+    <div class="schema-wrap demo-step" id="demo-B-wrap" style="justify-content:center;">
+      <div class="schema-block">
+        <div class="falk-mat" id="demo-B">
+          <span class="falk-coef k0" data-b="00">α</span>
+          <span class="falk-coef k0" data-b="01">β</span>
+          <span class="falk-coef k1" data-b="10">γ</span>
+          <span class="falk-coef k1" data-b="11">δ</span>
+          <div class="demo-rowlabels">
+            <span>u<sub>x</sub></span><span>u<sub>y</sub></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="demo-line demo-step" id="demo-line1"></div>
+    <div class="demo-line demo-step" id="demo-line2"></div>
+
+    <div class="schema-wrap demo-step" id="demo-A-wrap" style="justify-content:center;">
+      <div class="schema-block">
+        <div class="falk-mat" id="demo-A">
+          <span class="falk-coef k0" data-a="00">a</span>
+          <span class="falk-coef k1" data-a="01">b</span>
+          <span class="falk-coef k0" data-a="10">c</span>
+          <span class="falk-coef k1" data-a="11">d</span>
+        </div>
+        <div class="demo-collabels">
+          <span class="demo-collabel" id="demo-fux" style="color:var(--blue);">f(u<sub>x</sub>)</span>
+          <span class="demo-collabel" id="demo-fuy" style="color:var(--teal);">f(u<sub>y</sub>)</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="demo-line demo-step" id="demo-line3"></div>
+    <div class="demo-line demo-step" id="demo-line4"></div>
+  </div>
+
+  <p class="reveal">D'où le produit&nbsp;:</p>
+  <div id="f-AB" class="reveal"></div>
+
+  <div class="card reveal">
+    <h3>La règle du sémaphore</h3>
+    <p>Un moyen mnémotechnique pour retrouver AB à la main&nbsp;: B décalé en
+      haut à droite, A en bas à gauche. Chaque case de AB combine une ligne
+      de A avec la colonne de B alignée au-dessus.</p>
+    <div class="falk-wrap">
+      <div class="falk-grid" id="falk-grid">
+        <div class="falk-empty"></div>
+        <div class="falk-mat falk-b">
+          <span class="falk-coef k0" data-b="00">α</span>
+          <span class="falk-coef k0" data-b="01">β</span>
+          <span class="falk-coef k1" data-b="10">γ</span>
+          <span class="falk-coef k1" data-b="11">δ</span>
+        </div>
+        <div class="falk-mat falk-a">
+          <span class="falk-coef k0" data-a="00">a</span>
+          <span class="falk-coef k1" data-a="01">b</span>
+          <span class="falk-coef k0" data-a="10">c</span>
+          <span class="falk-coef k1" data-a="11">d</span>
+        </div>
+        <div class="falk-mat falk-ab">
+          <span class="falk-result-cell" data-ab="00"></span>
+          <span class="falk-result-cell" data-ab="01"></span>
+          <span class="falk-result-cell" data-ab="10"></span>
+          <span class="falk-result-cell" data-ab="11"></span>
+        </div>
+      </div>
+      <div class="falk-formula" id="falk-formula"></div>
+    </div>
+  </div>
+
+  <div class="card retain reveal">
+    <h3>L'ordre compte</h3>
+    <p>« Rotation puis étirement » ne produit généralement pas le même résultat que « étirement puis rotation ».</p>
+    <div class="comparison-grid">
+      <div class="comparison-box"><div id="f-AB-example"></div><small>rotation puis étirement</small></div>
+      <div class="neq">≠</div>
+      <div class="comparison-box"><div id="f-BA-example"></div><small>étirement puis rotation</small></div>
+    </div>
+    <p class="mini-note" style="margin:.9rem 0 0;">C'est pourquoi, en général, AB ≠ BA.</p>
+  </div>
+
+</section>
+
+<hr class="divider">
+
+<!-- ============ SECTION 4 — DÉTERMINANT ============ -->
+<section class="wide" id="s4">
+  <div class="section-num reveal">03 · Le déterminant</div>
+  <h2 class="reveal">Un facteur d'aire</h2>
+  <p class="reveal">
+    Le carré unité, construit sur u<sub>x</sub> et u<sub>y</sub>, se déforme
+    sous l'action de A. Son aire après transformation vaut |det A|.
+  </p>
+
+  <div class="anim-box reveal" style="max-width:580px; margin:0 auto;">
+    <svg id="anim3-svg" viewBox="0 0 340 340"></svg>
+    <div class="readout">
+      <span class="r-cos">aire avant&nbsp;: <span class="val" id="a3-before" style="color:var(--ink-soft);">1</span></span>
+      <span class="r-sin">aire après&nbsp;: <span class="val" id="a3-after">1</span></span>
+    </div>
+    <div class="a3-corner" id="a3-corner-A"></div>
+  </div>
+
+  <div class="reveal" style="margin-top:1em;">
+    <div class="demo-line demo-step" id="a3-line-geo"></div>
+    <div class="demo-line demo-step" id="a3-line-base"></div>
+    <div class="demo-line demo-step" id="a3-line-lineeq"></div>
+    <div class="demo-line demo-step" id="a3-line-height"></div>
+    <div class="demo-line demo-step" id="a3-line-area"></div>
+    <div class="demo-line demo-step" id="a3-line-det"></div>
+    <div class="demo-line demo-step" id="a3-line-concl"></div>
+  </div>
+
+  <div class="reveal" style="margin-top:1.6em;">
+    <ul style="padding-left:1.2em; margin:0;">
+      <li><strong>|det A|</strong> est le facteur par lequel les aires sont multipliées.</li>
+      <li>Le <strong>signe</strong> indique si l'orientation est conservée ou inversée.</li>
+      <li><span class="accent-red">det A = 0</span> signifie que le plan s'écrase sur une droite ou un point.</li>
+    </ul>
+    <div class="card retain">
+      <h3>Pourquoi « non inversible »&nbsp;?</h3>
+      <p style="margin:0;">Quand le plan est écrasé, plusieurs vecteurs de départ peuvent arriver au même endroit. Une partie de l'information est perdue&nbsp;: à partir de l'arrivée, on ne peut plus retrouver de façon unique le vecteur de départ.</p>
+    </div>
+    <details class="detail-card">
+      <summary>Voir le calcul complet de la hauteur</summary>
+      <p class="mini-note" style="margin-top:.8rem;">Le développement animé ci-dessus utilise la distance d'un point à une droite. Ce calcul confirme l'aire, mais il n'est pas indispensable pour retenir l'idée principale&nbsp;: le déterminant mesure directement le facteur d'aire.</p>
+    </details>
+  </div>
+</section>
+
+<hr class="divider">
+
+<section class="wide" id="s5">
+  <div class="section-num reveal">04 · Prendre du recul</div>
+  <h2 class="reveal">Ce qu'une matrice permet de voir</h2>
+  <div class="summary-grid reveal">
+    <div class="summary-item"><strong>Décrire</strong>Elle rassemble dans ses colonnes l'effet de la transformation sur deux directions de référence.</div>
+    <div class="summary-item"><strong>Transformer</strong>Elle combine ces colonnes pour calculer l'image d'un vecteur quelconque.</div>
+    <div class="summary-item"><strong>Composer</strong>Le produit matriciel traduit l'enchaînement de deux transformations, dans un ordre précis.</div>
+    <div class="summary-item"><strong>Mesurer la perte d'information</strong>Le déterminant décrit l'effet sur les aires et révèle si la transformation peut être inversée.</div>
+  </div>
+
+  <div class="card reveal">
+    <h3>Ce qu'une matrice 2 × 2 ne fait pas ici</h3>
+    <p style="margin:0;">Les transformations présentées gardent l'origine fixe&nbsp;: rotations, étirements, projections ou cisaillements. Une translation seule n'est pas décrite par une matrice 2 × 2 de ce type.</p>
+  </div>
+
+  <div class="card retain reveal">
+    <h3>Cadre de cette capsule</h3>
+    <p>À des fins de compréhension, cette explication est construite dans le plan avec des matrices 2 × 2 et des transformations simples&nbsp;: rotations, étirements et déformations.</p>
+    <p style="margin:0;">Les mêmes idées se généralisent à des matrices de tailles supérieures et à d'autres transformations linéaires. Les notions formelles de base, de coordonnées et d'espace vectoriel seront précisées dans une fiche dédiée.</p>
+  </div>
+</section>
+
+<footer>
+  Capsule pilote « Comprendre » — Matrices · format prototype
+</footer>
+
+<script>
+/* ---------- KaTeX render helpers ---------- */
+function K(id, tex, display){
+  katex.render(tex, document.getElementById(id), {throwOnError:false, displayMode: !!display});
+}
+
+K('f-ur', "u_r = \\cos\\theta\\, u_x + \\sin\\theta\\, u_y", true);
+K('f-utheta', "u_\\theta = -\\sin\\theta\\, u_x + \\cos\\theta\\, u_y", true);
+K('f-Rtheta', "R_\\theta = \\begin{pmatrix}\\cos\\theta & -\\sin\\theta\\\\ \\sin\\theta & \\cos\\theta\\end{pmatrix}", true);
+
+K('f-AB', "AB = \\begin{pmatrix}a\\alpha+b\\gamma & a\\beta+b\\delta\\\\ c\\alpha+d\\gamma & c\\beta+d\\delta\\end{pmatrix}", true);
+K('f-AB-example', String.raw`AB=\begin{pmatrix}2&0\\0&1\end{pmatrix}\begin{pmatrix}0&-1\\1&0\end{pmatrix}=\begin{pmatrix}0&-2\\1&0\end{pmatrix}`, true);
+K('f-BA-example', String.raw`BA=\begin{pmatrix}0&-1\\1&0\end{pmatrix}\begin{pmatrix}2&0\\0&1\end{pmatrix}=\begin{pmatrix}0&-1\\2&0\end{pmatrix}`, true);
+
+/* ---------- render every matrix coefficient through KaTeX, so
+   letters match the surrounding formulas exactly (same math font) ---------- */
+(function(){
+  const GREEK = {'α':'\\alpha', 'β':'\\beta', 'γ':'\\gamma', 'δ':'\\delta'};
+  document.querySelectorAll('.falk-coef').forEach(el => {
+    const raw = el.textContent.trim();
+    katex.render(GREEK[raw] || raw, el, {throwOnError:false});
+  });
+})();
+
+/* ---------- scroll progress bar ---------- */
+const progressEl = document.getElementById('progress');
+function updateProgress(){
+  const h = document.documentElement;
+  const scrolled = (h.scrollTop) / (h.scrollHeight - h.clientHeight);
+  progressEl.style.width = (scrolled*100) + '%';
+}
+document.addEventListener('scroll', updateProgress, {passive:true});
+updateProgress();
+
+/* ---------- reveal on scroll ---------- */
+const io = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      e.target.classList.add('visible');
+      io.unobserve(e.target);
+    }
+  });
+}, {threshold:0.15});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+/* ==================================================================
+   ANIM 1 — rotation of the plane axes (u_r, u_theta) over ground axes
+   ================================================================== */
+(function(){
+  const svg = document.getElementById('anim1-svg');
+  const NS = 'http://www.w3.org/2000/svg';
+  const size = 340, cx = size/2, cy = size/2, R = 110;
+
+  function el(tag, attrs){
+    const e = document.createElementNS(NS, tag);
+    for(const k in attrs) e.setAttribute(k, attrs[k]);
+    return e;
+  }
+
+  svg.setAttribute('viewBox', `-18 0 ${size+36} ${size}`);
+
+  // ground axes (u_x, u_y) — bold reference frame
+  const axisLen = R + 45;
+  svg.appendChild(el('line', {x1:cx-axisLen, y1:cy, x2:cx+axisLen, y2:cy, stroke:'#2D2D30', 'stroke-width':1.5}));
+  svg.appendChild(el('line', {x1:cx, y1:cy+axisLen, x2:cx, y2:cy-axisLen, stroke:'#2D2D30', 'stroke-width':1.5}));
+  // arrow heads on ground axes
+  svg.appendChild(el('path', {d:`M ${cx+axisLen-8} ${cy-5} L ${cx+axisLen} ${cy} L ${cx+axisLen-8} ${cy+5} Z`, fill:'#2D2D30'}));
+  svg.appendChild(el('path', {d:`M ${cx-5} ${cy-axisLen+8} L ${cx} ${cy-axisLen} L ${cx+5} ${cy-axisLen+8} Z`, fill:'#2D2D30'}));
+
+  const uxLabel = el('text', {x:cx+axisLen+6, y:cy+4, 'font-size':13, fill:'#2D2D30', 'font-family':'Inter'});
+  uxLabel.textContent = 'ux';
+  svg.appendChild(uxLabel);
+  const uyLabel = el('text', {x:cx-14, y:cy-axisLen-8, 'font-size':13, fill:'#2D2D30', 'font-family':'Inter'});
+  uyLabel.textContent = 'uy';
+  svg.appendChild(uyLabel);
+
+  // faint reference circle (path the tip travels)
+  svg.appendChild(el('circle', {cx:cx, cy:cy, r:R, fill:'none', stroke:'#E4E4E7', 'stroke-width':1}));
+
+  // angle arc
+  const arcPath = el('path', {fill:'none', stroke:'#78787D', 'stroke-width':1.5});
+  svg.appendChild(arcPath);
+  const thetaLabel = el('text', {'font-size':12, fill:'#78787D', 'font-family':'Inter'});
+  svg.appendChild(thetaLabel);
+
+  // dashed projection lines
+  const projX = el('line', {stroke:'#285AC4', 'stroke-width':1, 'stroke-dasharray':'4 3'});
+  const projY = el('line', {stroke:'#285AC4', 'stroke-width':1, 'stroke-dasharray':'4 3'});
+  svg.appendChild(projX); svg.appendChild(projY);
+
+  // u_r vector (blue)
+  const urLine = el('line', {stroke:'#285AC4', 'stroke-width':2.5});
+  const urHead = el('path', {fill:'#285AC4'});
+  const urLabel = el('text', {'font-size':14, fill:'#285AC4', 'font-family':'Inter', 'font-weight':600});
+  urLabel.textContent = 'ur';
+  svg.appendChild(urLine); svg.appendChild(urHead); svg.appendChild(urLabel);
+
+  // u_theta vector (teal)
+  const utLine = el('line', {stroke:'#0F766E', 'stroke-width':2.5});
+  const utHead = el('path', {fill:'#0F766E'});
+  const utLabel = el('text', {'font-size':14, fill:'#0F766E', 'font-family':'Inter', 'font-weight':600});
+  utLabel.textContent = 'uθ';
+  svg.appendChild(utLine); svg.appendChild(utHead); svg.appendChild(utLabel);
+
+  const thetaEl = document.getElementById('a1-theta');
+  const cosEl = document.getElementById('a1-cos');
+  const sinEl = document.getElementById('a1-sin');
+  const m00 = document.getElementById('a1-m00');
+  const m01 = document.getElementById('a1-m01');
+  const m10 = document.getElementById('a1-m10');
+  const m11 = document.getElementById('a1-m11');
+
+  function arrowHead(px, py, angleRad, color){
+    const a1 = angleRad + Math.PI*0.86;
+    const a2 = angleRad - Math.PI*0.86;
+    const len = 10;
+    const x1 = px + len*Math.cos(a1), y1 = py - len*Math.sin(a1);
+    const x2 = px + len*Math.cos(a2), y2 = py - len*Math.sin(a2);
+    return `M ${x1} ${y1} L ${px} ${py} L ${x2} ${y2} L ${px + 5*Math.cos(angleRad)} ${py - 5*Math.sin(angleRad)} Z`;
+  }
+
+  // rotate from 0 to 45deg, pause to read coordinates, ease back, pause, loop
+  const MAX_THETA = Math.PI / 4; // 45°
+  const RISE = 2800, HOLD_TOP = 3200, FALL = 2400, HOLD_BASE = 1200;
+  const PERIOD = RISE + HOLD_TOP + FALL + HOLD_BASE;
+  let start = null;
+
+  function easeInOutCubic(p){
+    return p < 0.5 ? 4*p*p*p : 1 - Math.pow(-2*p + 2, 3) / 2;
+  }
+
+  function frame(ts){
+    if(start === null) start = ts;
+    if(!document.hidden){
+      const t = (ts - start) % PERIOD;
+      let theta;
+      if(t < RISE){
+        theta = easeInOutCubic(t / RISE) * MAX_THETA;
+      } else if(t < RISE + HOLD_TOP){
+        theta = MAX_THETA;
+      } else if(t < RISE + HOLD_TOP + FALL){
+        theta = (1 - easeInOutCubic((t - RISE - HOLD_TOP) / FALL)) * MAX_THETA;
+      } else {
+        theta = 0;
+      }
+      const c = Math.cos(theta), s = Math.sin(theta);
+
+      // u_r tip
+      const urx = cx + R*c, ury = cy - R*s;
+      // u_theta tip (perpendicular, +90deg)
+      const utx = cx - R*s, uty = cy - R*c;
+
+      urLine.setAttribute('x1', cx); urLine.setAttribute('y1', cy);
+      urLine.setAttribute('x2', urx); urLine.setAttribute('y2', ury);
+      urHead.setAttribute('d', arrowHead(urx, ury, theta, '#285AC4'));
+      urLabel.setAttribute('x', urx + (c>=0?8:-26));
+      urLabel.setAttribute('y', ury - (s>=0?6:-16));
+
+      const thetaPerp = theta + Math.PI/2;
+      utLine.setAttribute('x1', cx); utLine.setAttribute('y1', cy);
+      utLine.setAttribute('x2', utx); utLine.setAttribute('y2', uty);
+      utHead.setAttribute('d', arrowHead(utx, uty, thetaPerp, '#0F766E'));
+      utLabel.setAttribute('x', utx + (-s>=0?8:-26));
+      utLabel.setAttribute('y', uty - (-c*0+ (Math.sin(thetaPerp)>=0?6:-16)) );
+
+      // projections of u_r onto axes
+      projX.setAttribute('x1', urx); projX.setAttribute('y1', ury);
+      projX.setAttribute('x2', urx); projX.setAttribute('y2', cy);
+      projY.setAttribute('x1', urx); projY.setAttribute('y1', ury);
+      projY.setAttribute('x2', cx); projY.setAttribute('y2', ury);
+
+      // angle arc from x-axis to u_r
+      const arcR = 30;
+      const startX = cx + arcR, startY = cy;
+      const endX = cx + arcR*c, endY = cy - arcR*s;
+      const largeArc = theta > Math.PI ? 1 : 0;
+      arcPath.setAttribute('d', `M ${startX} ${startY} A ${arcR} ${arcR} 0 ${largeArc} 0 ${endX} ${endY}`);
+      thetaLabel.setAttribute('x', cx + (arcR+14)*Math.cos(theta/2));
+      thetaLabel.setAttribute('y', cy - (arcR+14)*Math.sin(theta/2));
+      thetaLabel.textContent = 'θ';
+
+      const deg = Math.round(theta * 180 / Math.PI);
+      thetaEl.textContent = deg + '°';
+      cosEl.textContent = c.toFixed(2);
+      sinEl.textContent = s.toFixed(2);
+      m00.textContent = c.toFixed(2);
+      m01.textContent = (-s).toFixed(2);
+      m10.textContent = s.toFixed(2);
+      m11.textContent = c.toFixed(2);
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+
+/* ==================================================================
+   FALK TABLE — animated "règle du sémaphore": a highlight travels
+   along a row of A and a column of B, writes each AB cell in turn
+   ================================================================== */
+(function(){
+  const A = {'00':'a','01':'b','10':'c','11':'d'};
+  const B = {'00':'\\alpha','01':'\\beta','10':'\\gamma','11':'\\delta'};
+  const targets = [[0,0],[0,1],[1,0],[1,1]];
+  const BLUE = '#285AC4', TEAL = '#0F766E';
+
+  const aEl = key => document.querySelector(`.falk-a [data-a="${key}"]`);
+  const bEl = key => document.querySelector(`.falk-b [data-b="${key}"]`);
+  const abEl = key => document.querySelector(`.falk-ab [data-ab="${key}"]`);
+  const formulaEl = document.getElementById('falk-formula');
+  if(!formulaEl) return;
+
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  const tc = (str, color) => `\\textcolor{${color}}{${str}}`;
+  const setFormula = tex => katex.render(tex, formulaEl, {throwOnError:false});
+
+  const STEP = 1300;
+  const RESULT_PAUSE = 1600;
+  const LOOP_PAUSE = 2200;
+
+  async function loop(){
+    while(true){
+      for(const [i,j] of targets){
+        const abKey = `${i}${j}`;
+        const a0 = A[`${i}0`], b0 = B[`0${j}`];
+        const a1 = A[`${i}1`], b1 = B[`1${j}`];
+
+        const nA0 = aEl(`${i}0`), nB0 = bEl(`0${j}`);
+        nA0.classList.add('pulse'); nB0.classList.add('pulse');
+        setFormula(tc(`${a0}${b0}`, BLUE));
+        await sleep(STEP);
+        nA0.classList.remove('pulse'); nB0.classList.remove('pulse');
+
+        const nA1 = aEl(`${i}1`), nB1 = bEl(`1${j}`);
+        nA1.classList.add('pulse'); nB1.classList.add('pulse');
+        setFormula(tc(`${a0}${b0}`, BLUE) + '{+}' + tc(`${a1}${b1}`, TEAL));
+        await sleep(STEP);
+        nA1.classList.remove('pulse'); nB1.classList.remove('pulse');
+
+        const cell = abEl(abKey);
+        katex.render(tc(`${a0}${b0}`, BLUE) + '{+}' + tc(`${a1}${b1}`, TEAL), cell, {throwOnError:false});
+        cell.classList.add('filled');
+        formulaEl.innerHTML = '';
+        await sleep(RESULT_PAUSE);
+      }
+      await sleep(LOOP_PAUSE);
+      document.querySelectorAll('.falk-result-cell').forEach(c=>{
+        c.classList.remove('filled'); c.innerHTML = '';
+      });
+    }
+  }
+  loop();
+})();
+
+/* ==================================================================
+   DEMO — from the handwritten derivation: each step is built and
+   stays on screen (like the Falk table cells) instead of replacing
+   the previous one — B, g(u_x), linearity, A (fetch columns),
+   substitution, final result, all stacking up.
+   ================================================================== */
+(function(){
+  const BLUE = '#285AC4', TEAL = '#0F766E';
+  const dB = key => document.querySelector(`#demo-B [data-b="${key}"]`);
+  const dA = key => document.querySelector(`#demo-A [data-a="${key}"]`);
+  const bWrap = document.getElementById('demo-B-wrap');
+  const aWrap = document.getElementById('demo-A-wrap');
+  const line1 = document.getElementById('demo-line1');
+  const line2 = document.getElementById('demo-line2');
+  const line3 = document.getElementById('demo-line3');
+  const line4 = document.getElementById('demo-line4');
+  const fuxEl = document.getElementById('demo-fux');
+  const fuyEl = document.getElementById('demo-fuy');
+  if(!bWrap) return;
+
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  const tc = (s, c) => `\\textcolor{${c}}{${s}}`;
+  const show = el => el.classList.add('show');
+  const hide = el => el.classList.remove('show');
+  const render = (el, tex) => katex.render(tex, el, {throwOnError:false, displayMode:true});
+
+  render(line1, `g(u_x) = ${tc('\\alpha', BLUE)}\\,u_x + ${tc('\\gamma', TEAL)}\\,u_y`);
+  render(line2, `(f\\circ g)(u_x) = ${tc('\\alpha', BLUE)} f(u_x) + ${tc('\\gamma', TEAL)} f(u_y)`);
+  render(line3, `(f\\circ g)(u_x) = ${tc('\\alpha', BLUE)}(a\\,u_x{+}c\\,u_y) + ${tc('\\gamma', TEAL)}(b\\,u_x{+}d\\,u_y)`);
+  render(line4, `(f\\circ g)(u_x) = ${tc('(a\\alpha{+}b\\gamma)', BLUE)}\\,u_x + ${tc('(c\\alpha{+}d\\gamma)', TEAL)}\\,u_y`);
+
+  async function loop(){
+    while(true){
+      // reset — clear the whole stack
+      [bWrap, line1, line2, aWrap, line3, line4].forEach(hide);
+      fuxEl.style.opacity = 0; fuyEl.style.opacity = 0;
+      await sleep(900);
+
+      // step 1 — matrix B appears
+      show(bWrap);
+      await sleep(900);
+      dB('00').classList.add('pulse'); dB('10').classList.add('pulse');
+      await sleep(700);
+
+      // step 2 — g(u_x), read off B's first column — stays
+      show(line1);
+      await sleep(1900);
+      dB('00').classList.remove('pulse'); dB('10').classList.remove('pulse');
+
+      // step 3 — linearity of f(g(u_x)) — stays
+      show(line2);
+      await sleep(2200);
+
+      // step 4 — matrix A appears, its columns ARE f(u_x) and f(u_y)
+      show(aWrap);
+      await sleep(700);
+      dA('00').classList.add('pulse'); dA('10').classList.add('pulse');
+      dA('01').classList.add('pulse'); dA('11').classList.add('pulse');
+      fuxEl.style.opacity = 1; fuyEl.style.opacity = 1;
+      await sleep(2200);
+      dA('00').classList.remove('pulse'); dA('10').classList.remove('pulse');
+      dA('01').classList.remove('pulse'); dA('11').classList.remove('pulse');
+
+      // step 5 — substitution — stays
+      show(line3);
+      await sleep(2400);
+
+      // step 6 — final expanded result — stays
+      show(line4);
+      await sleep(3400);
+    }
+  }
+  loop();
+})();
+
+/* ==================================================================
+   ANIM 2 — composition: rotation g, then horizontal stretch f
+   ================================================================== */
+(function(){
+  const svg = document.getElementById('anim2-svg');
+  const NS = 'http://www.w3.org/2000/svg';
+  const size = 340, cx = size/2, cy = size/2, R = 92;
+  if(!svg) return;
+
+  function el(tag, attrs){
+    const e = document.createElementNS(NS, tag);
+    for(const k in attrs) e.setAttribute(k, attrs[k]);
+    return e;
+  }
+  function arrowHead(px, py, angleRad){
+    const a1 = angleRad + Math.PI*0.86, a2 = angleRad - Math.PI*0.86, len = 10;
+    const x1 = px + len*Math.cos(a1), y1 = py - len*Math.sin(a1);
+    const x2 = px + len*Math.cos(a2), y2 = py - len*Math.sin(a2);
+    return `M ${x1} ${y1} L ${px} ${py} L ${x2} ${y2} L ${px + 5*Math.cos(angleRad)} ${py - 5*Math.sin(angleRad)} Z`;
+  }
+  function ease(p){ return p < .5 ? 4*p*p*p : 1-Math.pow(-2*p+2,3)/2; }
+
+  svg.setAttribute('viewBox', `-18 0 ${size+36} ${size}`);
+  const axisLen = 145;
+  svg.appendChild(el('line',{x1:cx-axisLen,y1:cy,x2:cx+axisLen,y2:cy,stroke:'#2D2D30','stroke-width':1.5}));
+  svg.appendChild(el('line',{x1:cx,y1:cy+axisLen,x2:cx,y2:cy-axisLen,stroke:'#2D2D30','stroke-width':1.5}));
+  svg.appendChild(el('path',{d:`M ${cx+axisLen-8} ${cy-5} L ${cx+axisLen} ${cy} L ${cx+axisLen-8} ${cy+5} Z`,fill:'#2D2D30'}));
+  svg.appendChild(el('path',{d:`M ${cx-5} ${cy-axisLen+8} L ${cx} ${cy-axisLen} L ${cx+5} ${cy-axisLen+8} Z`,fill:'#2D2D30'}));
+
+  const ghostLine=el('line',{stroke:'#0F766E','stroke-width':1.5,'stroke-dasharray':'4 4',opacity:0});
+  const ghostHead=el('path',{fill:'#0F766E',opacity:0});
+  const vLine=el('line',{stroke:'#0F766E','stroke-width':2.7});
+  const vHead=el('path',{fill:'#0F766E'});
+  const vLabel=el('text',{'font-size':13,fill:'#0F766E','font-family':'Inter','font-weight':600});
+  [ghostLine,ghostHead,vLine,vHead,vLabel].forEach(n=>svg.appendChild(n));
+
+  const betaEl=document.getElementById('a2-beta');
+  const alphaEl=document.getElementById('a2-alpha');
+  const labelEl=document.getElementById('a2-label');
+  const BETA=32*Math.PI/180, STRETCH=1.65;
+  const T1=2600,H1=1900,T2=2600,H2=2800,RESET=2200,H0=900;
+  const PERIOD=T1+H1+T2+H2+RESET+H0;
+  let start=null;
+
+  function place(line,head,x,y){
+    const px=cx+R*x, py=cy-R*y, ang=Math.atan2(y,x);
+    line.setAttribute('x1',cx); line.setAttribute('y1',cy);
+    line.setAttribute('x2',px); line.setAttribute('y2',py);
+    head.setAttribute('d',arrowHead(px,py,ang));
+    return {px,py,ang};
+  }
+
+  function frame(ts){
+    if(start===null) start=ts;
+    const t=(ts-start)%PERIOD;
+    let theta=0,scale=1,phase='idle';
+    if(t<T1){theta=ease(t/T1)*BETA; phase='g';}
+    else if(t<T1+H1){theta=BETA; phase='g';}
+    else if(t<T1+H1+T2){theta=BETA; scale=1+(STRETCH-1)*ease((t-T1-H1)/T2); phase='f';}
+    else if(t<T1+H1+T2+H2){theta=BETA; scale=STRETCH; phase='f';}
+    else if(t<T1+H1+T2+H2+RESET){
+      const q=1-ease((t-T1-H1-T2-H2)/RESET); theta=BETA*q; scale=1+(STRETCH-1)*q; phase='reset';
+    }
+
+    const gx=Math.cos(theta), gy=Math.sin(theta);
+    const x=scale*gx, y=gy;
+    if(phase==='f'){
+      place(ghostLine,ghostHead,Math.cos(BETA),Math.sin(BETA));
+      ghostLine.setAttribute('opacity','.55'); ghostHead.setAttribute('opacity','.55');
+      vLine.setAttribute('stroke','#285AC4'); vHead.setAttribute('fill','#285AC4'); vLabel.setAttribute('fill','#285AC4');
+      labelEl.innerHTML='f(g(u<sub>x</sub>)) : rotation puis étirement';
+    } else if(phase==='g'){
+      ghostLine.setAttribute('opacity','0'); ghostHead.setAttribute('opacity','0');
+      vLine.setAttribute('stroke','#0F766E'); vHead.setAttribute('fill','#0F766E'); vLabel.setAttribute('fill','#0F766E');
+      labelEl.innerHTML='g(u<sub>x</sub>) : rotation';
+    } else {
+      ghostLine.setAttribute('opacity','0'); ghostHead.setAttribute('opacity','0');
+      vLine.setAttribute('stroke','#78787D'); vHead.setAttribute('fill','#78787D'); vLabel.setAttribute('fill','#78787D');
+      labelEl.innerHTML='u<sub>x</sub>';
+    }
+    const tip=place(vLine,vHead,x,y);
+    vLabel.setAttribute('x',tip.px+8); vLabel.setAttribute('y',tip.py-8);
+    vLabel.textContent=phase==='f'?'f(g(ux))':phase==='g'?'g(ux)':'ux';
+    betaEl.textContent=Math.round(theta*180/Math.PI)+'°';
+    alphaEl.textContent='× '+scale.toFixed(2)+' en x';
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+
+/* ==================================================================
+   ANIM 3 — determinant as an area factor, staged:
+   1) u_x, u_y at rest  2) unit area appears, labelled "1"
+   3) each vector moves to its own new position (deforms the area) —
+      simple whole-number coordinates, annotated on the diagram
+   4) resulting area is drawn, unit square stays as reference
+   ================================================================== */
+(function(){
+  const svg = document.getElementById('anim3-svg');
+  const NS = 'http://www.w3.org/2000/svg';
+  if(!svg) return;
+  const size = 340, cx = 110, cy = 290, unit = 46;
+
+  function el(tag, attrs){
+    const e = document.createElementNS(NS, tag);
+    for(const k in attrs) e.setAttribute(k, attrs[k]);
+    return e;
+  }
+  const pt = (x, y) => `${cx + x*unit},${cy - y*unit}`;
+  const fmt = n => Math.abs(n - Math.round(n)) < 1e-6 ? String(Math.round(n)) : n.toFixed(2);
+  function arrowHead(px, py, angleRad){
+    const a1 = angleRad + Math.PI*0.86, a2 = angleRad - Math.PI*0.86, len = 9;
+    const x1 = px + len*Math.cos(a1), y1 = py - len*Math.sin(a1);
+    const x2 = px + len*Math.cos(a2), y2 = py - len*Math.sin(a2);
+    return `M ${x1} ${y1} L ${px} ${py} L ${x2} ${y2} L ${px + 4.5*Math.cos(angleRad)} ${py - 4.5*Math.sin(angleRad)} Z`;
+  }
+
+  svg.setAttribute('viewBox', '-20 -20 400 360');
+
+  svg.appendChild(el('line', {x1:cx-unit*1.6, y1:cy, x2:cx+unit*5, y2:cy, stroke:'#E4E4E7', 'stroke-width':1.5}));
+  svg.appendChild(el('line', {x1:cx, y1:cy+unit*0.6, x2:cx, y2:cy-unit*5.4, stroke:'#E4E4E7', 'stroke-width':1.5}));
+
+  // reference unit square (area = 1, "avant") — fades in at stage 2, stays
+  const refSquare = el('polygon', {
+    points: [pt(0,0), pt(1,0), pt(1,1), pt(0,1)].join(' '),
+    fill: '#78787D', 'fill-opacity':0.10, stroke:'#78787D', 'stroke-width':1.3,
+    'stroke-dasharray':'4 4', opacity:0
+  });
+  svg.appendChild(refSquare);
+  const unitLabel = el('text', {x:pt(0.5,0.5).split(',')[0], y:pt(0.5,0.5).split(',')[1],
+    'text-anchor':'middle', 'dominant-baseline':'middle', 'font-size':15, 'font-weight':700,
+    fill:'#78787D', 'font-family':'Inter', opacity:0});
+  unitLabel.textContent = '1';
+  svg.appendChild(unitLabel);
+
+  // resulting parallelogram — fades in at stage 4
+  const liveShape = el('polygon', {fill:'#0F766E', 'fill-opacity':0.28, stroke:'#0F766E', 'stroke-width':2, opacity:0});
+  svg.appendChild(liveShape);
+
+  // u_x, u_y vectors
+  const uxLine = el('line', {stroke:'#285AC4', 'stroke-width':2.5});
+  const uxHead = el('path', {fill:'#285AC4'});
+  const uxLbl = el('text', {'font-size':13, fill:'#285AC4', 'font-family':'Inter', 'font-weight':600});
+  uxLbl.textContent = 'ux';
+  const uyLine = el('line', {stroke:'#0F766E', 'stroke-width':2.5});
+  const uyHead = el('path', {fill:'#0F766E'});
+  const uyLbl = el('text', {'font-size':13, fill:'#0F766E', 'font-family':'Inter', 'font-weight':600});
+  uyLbl.textContent = 'uy';
+  [uxLine, uxHead, uxLbl, uyLine, uyHead, uyLbl].forEach(n => svg.appendChild(n));
+
+  // coordinate annotations on the diagram — appear with the result,
+  // stacked directly under each vector's name label (no overlap)
+  const uxCoord = el('text', {'font-size':12.5, fill:'#285AC4', 'font-family':'Inter', 'font-weight':600, opacity:0});
+  const uyCoord = el('text', {'font-size':12.5, fill:'#0F766E', 'font-family':'Inter', 'font-weight':600, opacity:0});
+  svg.appendChild(uxCoord); svg.appendChild(uyCoord);
+
+  // height segment: the actual perpendicular from the tip of u_y down to
+  // the line carried by u_x — this is what "hauteur" means, measured
+  // independently of the determinant formula
+  const heightSeg = el('line', {stroke:'#2D2D30', 'stroke-width':1.6, 'stroke-dasharray':'3 3', opacity:0});
+  const heightLbl = el('text', {'font-size':16, fill:'#2D2D30', 'font-family':'Inter', 'font-weight':700, opacity:0});
+  heightLbl.textContent = 'h';
+  svg.appendChild(heightSeg); svg.appendChild(heightLbl);
+
+  const afterEl = document.getElementById('a3-after');
+  const cornerA = document.getElementById('a3-corner-A');
+  const lineGeo = document.getElementById('a3-line-geo');
+  const lineBase = document.getElementById('a3-line-base');
+  const lineEq = document.getElementById('a3-line-lineeq');
+  const lineHeight = document.getElementById('a3-line-height');
+  const lineArea = document.getElementById('a3-line-area');
+  const lineDet = document.getElementById('a3-line-det');
+  const lineConcl = document.getElementById('a3-line-concl');
+
+  function drawVectorXY(line, head, lbl, x, y, forceLeft){
+    const theta = Math.atan2(y, x);
+    const px = cx + x*unit, py = cy - y*unit;
+    line.setAttribute('x1', cx); line.setAttribute('y1', cy);
+    line.setAttribute('x2', px); line.setAttribute('y2', py);
+    head.setAttribute('d', arrowHead(px, py, theta));
+    const goRight = forceLeft ? false : (x >= 0);
+    lbl.setAttribute('x', px + (goRight ? 7 : -28));
+    lbl.setAttribute('y', py - (y >= 0 ? 7 : -14));
+    return {x, y};
+  }
+
+  function stackCoord(nameLbl, coordLbl, text){
+    const lx = parseFloat(nameLbl.getAttribute('x'));
+    const ly = parseFloat(nameLbl.getAttribute('y'));
+    coordLbl.setAttribute('x', lx);
+    coordLbl.setAttribute('y', ly + 15);
+    coordLbl.textContent = text;
+  }
+
+  function updateLive(vx, vy){
+    liveShape.setAttribute('points', [pt(0,0), pt(vx.x,vx.y), pt(vx.x+vy.x,vx.y+vy.y), pt(vy.x,vy.y)].join(' '));
+    const det = vx.x*vy.y - vy.x*vx.y;
+    const negative = det < 0;
+    liveShape.setAttribute('fill', negative ? '#BC443A' : '#0F766E');
+    liveShape.setAttribute('stroke', negative ? '#BC443A' : '#0F766E');
+    afterEl.textContent = fmt(Math.abs(det));
+    afterEl.style.color = negative ? '#BC443A' : '#0F766E';
+    return det;
+  }
+
+  function easeInOutCubic(p){ return p < 0.5 ? 4*p*p*p : 1 - Math.pow(-2*p + 2, 3) / 2; }
+  function lerp(a, b, p){ return a + (b - a) * p; }
+  function tween(duration, onUpdate){
+    return new Promise(resolve => {
+      const t0 = performance.now();
+      function step(ts){
+        const p = Math.min(1, (ts - t0) / duration);
+        onUpdate(easeInOutCubic(p));
+        if(p < 1) requestAnimationFrame(step); else resolve();
+      }
+      requestAnimationFrame(step);
+    });
+  }
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+  // u_x = (4,3): |u_x| = 5 (Pythagoras, clean). u_y = (1,2): not parallel,
+  // not perpendicular, different length — a genuine skewed parallelogram.
+  const UX0 = {x:1, y:0}, UX1 = {x:4, y:3};
+  const UY0 = {x:0, y:1}, UY1 = {x:1, y:2};
+
+  async function loop(){
+    while(true){
+      // stage 1 — vectors at rest
+      refSquare.setAttribute('opacity', 0); unitLabel.setAttribute('opacity', 0);
+      liveShape.setAttribute('opacity', 0);
+      uxCoord.setAttribute('opacity', 0); uyCoord.setAttribute('opacity', 0);
+      heightSeg.setAttribute('opacity', 0); heightLbl.setAttribute('opacity', 0);
+      cornerA.style.opacity = 0;
+      drawVectorXY(uxLine, uxHead, uxLbl, UX0.x, UX0.y);
+      drawVectorXY(uyLine, uyHead, uyLbl, UY0.x, UY0.y, true);
+      afterEl.textContent = '–'; afterEl.style.color = 'var(--ink-soft)';
+      [lineGeo, lineBase, lineEq, lineHeight, lineArea, lineDet, lineConcl].forEach(l => l.classList.remove('show'));
+      await sleep(1300);
+
+      // stage 2 — unit area appears, labelled "1"
+      refSquare.setAttribute('opacity', 1); unitLabel.setAttribute('opacity', 1);
+      await sleep(1700);
+
+      // stage 3 — each vector moves to its own new position
+      await tween(2200, p => drawVectorXY(uxLine, uxHead, uxLbl, lerp(UX0.x,UX1.x,p), lerp(UX0.y,UX1.y,p)));
+      await sleep(700);
+      await tween(2200, p => drawVectorXY(uyLine, uyHead, uyLbl, lerp(UY0.x,UY1.x,p), lerp(UY0.y,UY1.y,p), true));
+      await sleep(700);
+
+      // stage 4 — draw the resulting area, annotate coordinates, show A right away (corner)
+      const detVal = updateLive(UX1, UY1);
+      liveShape.setAttribute('opacity', 1);
+
+      const x1 = fmt(UX1.x), y1 = fmt(UX1.y), x2 = fmt(UY1.x), y2 = fmt(UY1.y);
+      stackCoord(uxLbl, uxCoord, `(${x1}, ${y1})`);
+      stackCoord(uyLbl, uyCoord, `(${x2}, ${y2})`);
+      uxCoord.setAttribute('opacity', 1); uyCoord.setAttribute('opacity', 1);
+
+      katex.render(`A = \\begin{pmatrix}${x1}&${x2}\\\\${y1}&${y2}\\end{pmatrix}`, cornerA, {throwOnError:false});
+      cornerA.style.opacity = 1;
+
+      // the height: perpendicular foot of u_y onto the line carried by
+      // u_x — drawn on the diagram, computed below via point-to-line
+      // distance (a different tool than the determinant, not a relabelling)
+      const baseLen2 = UX1.x*UX1.x + UX1.y*UX1.y;
+      const k = (UX1.x*UY1.x + UX1.y*UY1.y) / baseLen2;
+      const foot = {x: k*UX1.x, y: k*UX1.y};
+      const heightVal = Math.hypot(UY1.x-foot.x, UY1.y-foot.y);
+      heightSeg.setAttribute('x1', cx+UY1.x*unit); heightSeg.setAttribute('y1', cy-UY1.y*unit);
+      heightSeg.setAttribute('x2', cx+foot.x*unit); heightSeg.setAttribute('y2', cy-foot.y*unit);
+      heightLbl.setAttribute('x', cx + (UY1.x+foot.x)/2*unit + 10);
+      heightLbl.setAttribute('y', cy - (UY1.y+foot.y)/2*unit - 4);
+      heightSeg.setAttribute('opacity', 1); heightLbl.setAttribute('opacity', 1);
+      await sleep(1400);
+
+      // stage 4b — general formula, base (Pythagoras), the line carried by
+      // u_x, height via point-to-line distance — then "d'une part" the
+      // area, "d'autre part" the determinant, landing on the same number
+      const RES = '#285AC4';
+      const nx = y1, ny = -x1; // normal to u_x: rotate -90°, i.e. (y1, -x1)
+      katex.render(`\\text{Aire} = \\text{base} \\times \\text{hauteur}`, lineGeo, {throwOnError:false, displayMode:true});
+      lineGeo.classList.add('show');
+      await sleep(1900);
+
+      katex.render(`\\text{base} = \\lVert u_x\\rVert = \\sqrt{${x1}^2+${y1}^2} = ${fmt(Math.sqrt(baseLen2))}`, lineBase, {throwOnError:false, displayMode:true});
+      lineBase.classList.add('show');
+      await sleep(2000);
+
+      katex.render(`\\text{La droite portée par } u_x \\text{ a pour équation } ${nx}x ${ny<0?'-':'+'} ${Math.abs(ny)}y = 0`, lineEq, {throwOnError:false, displayMode:true});
+      lineEq.classList.add('show');
+      await sleep(2200);
+
+      katex.render(`\\text{hauteur} = \\dfrac{|${nx}\\times${x2} ${ny<0?'-':'+'} ${Math.abs(ny)}\\times${y2}|}{\\sqrt{${nx}^2+${Math.abs(ny)}^2}} = \\dfrac{${Math.abs(nx*UY1.x+ny*UY1.y)}}{${fmt(Math.sqrt(baseLen2))}} = ${fmt(heightVal)} \\quad \\text{(distance point-droite)}`, lineHeight, {throwOnError:false, displayMode:true});
+      lineHeight.classList.add('show');
+      await sleep(2600);
+
+      katex.render(`\\text{D'une part, } \\text{Aire} = ${fmt(Math.sqrt(baseLen2))} \\times ${fmt(heightVal)} = \\textcolor{${RES}}{${fmt(Math.sqrt(baseLen2)*heightVal)}}`, lineArea, {throwOnError:false, displayMode:true});
+      lineArea.classList.add('show');
+      await sleep(2200);
+
+      katex.render(`\\text{D'autre part, } \\det A = ${x1}\\times${y2} - ${x2}\\times${y1} = \\textcolor{${RES}}{${fmt(detVal)}}`, lineDet, {throwOnError:false, displayMode:true});
+      lineDet.classList.add('show');
+      await sleep(2200);
+
+      katex.render(`\\text{Aire} = |\\det A| \\qquad (\\det A \\text{ est une aire orientée})`, lineConcl, {throwOnError:false, displayMode:true});
+      lineConcl.classList.add('show');
+      await sleep(3000);
+
+      // reset — ease both vectors back, area fades, square stays till next cycle
+      liveShape.setAttribute('opacity', 0);
+      uxCoord.setAttribute('opacity', 0); uyCoord.setAttribute('opacity', 0);
+      heightSeg.setAttribute('opacity', 0); heightLbl.setAttribute('opacity', 0);
+      cornerA.style.opacity = 0;
+      afterEl.textContent = '–'; afterEl.style.color = 'var(--ink-soft)';
+      await tween(2000, p => {
+        const q = 1 - p;
+        drawVectorXY(uxLine, uxHead, uxLbl, lerp(UX0.x,UX1.x,q), lerp(UX0.y,UX1.y,q));
+        drawVectorXY(uyLine, uyHead, uyLbl, lerp(UY0.x,UY1.x,q), lerp(UY0.y,UY1.y,q), true);
+      });
+      await sleep(600);
+    }
+  }
+  loop();
+})();
+</script>
+
+</body>
+</html>
