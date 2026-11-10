@@ -1,0 +1,672 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Comprendre — Le ressort horizontal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<style>
+  :root{
+    --ink:#2D2D30; --ink-soft:#78787D; --rule:#E4E4E7; --card:#F7F7F8;
+    --blue:#285AC4; --teal:#0F766E; --red:#BC443A;
+    --blue-soft:#EAF0FB; --teal-soft:#E7F4F2;
+    --max:760px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0; font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; color:var(--ink); background:#FFFFFF; line-height:1.6; -webkit-font-smoothing:antialiased;}
+  h1,h2,h3{font-family:'Poppins',sans-serif; font-weight:600; line-height:1.22; letter-spacing:-.01em; margin:0 0 .6em 0;}
+  h1{font-size:clamp(2.1rem,5vw,3.2rem); font-weight:700; letter-spacing:-.025em;}
+  h2{font-size:clamp(1.65rem,3.6vw,2.35rem); letter-spacing:-.018em;}
+  h3{font-size:1.05rem; letter-spacing:-.005em;}
+  p{margin:0 0 1em 0;}
+  .lede{color:var(--ink-soft); font-size:clamp(1.1rem,2vw,1.25rem); line-height:1.6;}
+  .accent-blue{color:var(--blue); font-weight:600;}
+  .accent-teal{color:var(--teal); font-weight:600;}
+  .accent-red{color:var(--red); font-weight:600;}
+  #progress{position:fixed; top:0; left:0; height:2px; width:0%; background:var(--blue); z-index:1000; transition:width .05s linear; opacity:.75;}
+  section{padding:clamp(5rem,12vh,8.5rem) 1.5rem; max-width:var(--max); margin:0 auto; min-height:60vh; display:flex; flex-direction:column; justify-content:center;}
+  section.wide{max-width:980px;}
+  .card{background:var(--card); border:1px solid var(--rule); border-radius:20px; padding:1.8em 2em; margin:1.8em 0;}
+  .card h3{margin-top:0;}
+  .card.retain{border-color:transparent; background:var(--blue-soft);}
+  .card.retain h3{color:var(--blue);}
+  .divider{height:1px; background:var(--rule); border:none; margin:0 auto; max-width:var(--max); width:100%;}
+  .katex-display{margin:1em 0; overflow-x:auto; overflow-y:hidden;}
+  .demo-line{overflow-x:auto; overflow-y:hidden; min-height:2.2em; display:flex; align-items:center; justify-content:center; margin:.2em 0; transition:opacity .6s ease;}
+  .grid-2{display:grid; grid-template-columns:1fr 1fr; gap:2.5rem; align-items:center;}
+  @media (max-width:760px){ .grid-2{grid-template-columns:1fr;} section.wide{max-width:var(--max);} }
+  .anim-box{background:var(--card); border-radius:20px; padding:1.2rem; display:flex; flex-direction:column; align-items:center; gap:.8rem; position:relative;}
+  .anim-box svg{width:100%; height:auto; max-width:380px;}
+  .readout{font-size:.95rem; display:flex; gap:1.4em; flex-wrap:wrap; justify-content:center;}
+  .readout span.val{font-variant-numeric:tabular-nums; font-weight:600; display:inline-block; min-width:4.2em; text-align:right;}
+  .anim-note{font-size:.8rem; color:var(--ink-soft); margin:0;}
+  .hero{min-height:92vh; justify-content:center;}
+  .hero .kicker{font-family:'Poppins',sans-serif; font-size:.78rem; font-weight:600; letter-spacing:.14em; text-transform:uppercase; color:var(--blue); margin-bottom:1.1em;}
+  .intro-visual{margin:2.6em 0 1.8em; padding:1.4rem 1.4rem 1.1rem; background:var(--card); border:1px solid var(--rule); border-radius:24px; overflow:hidden;}
+  .intro-visual svg{display:block; width:100%; height:auto;}
+  .scroll-cue{margin-top:3em; text-align:center; color:var(--ink-soft); font-size:.85rem; animation:bob 2s ease-in-out infinite;}
+  @keyframes bob{0%,100%{transform:translateY(0);} 50%{transform:translateY(6px);}}
+  details.detail-card{background:var(--card); border:1px solid var(--rule); border-radius:18px; padding:1rem 1.2rem; margin-top:1.2rem;}
+  details.detail-card summary{cursor:pointer; font-weight:600; color:var(--blue);}
+  details.detail-card p:last-child{margin-bottom:0;}
+  .summary-grid{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1.4rem 1rem; margin-top:1.5rem;}
+  @media(max-width:650px){.summary-grid{grid-template-columns:1fr;}}
+  .summary-item{border-top:1px solid var(--rule); padding-top:.9rem;}
+  .summary-item strong{display:block; color:var(--blue); margin-bottom:.3rem;}
+  footer{text-align:center; padding:4rem 1.5rem 6rem; color:var(--ink-soft); font-size:.85rem;}
+  .reveal{opacity:0; transform:translateY(18px); transition:opacity .6s ease, transform .6s ease;}
+  .reveal.visible{opacity:1; transform:translateY(0);}
+  .section-num{font-family:'Poppins',sans-serif; font-weight:600; font-size:.76rem; letter-spacing:.1em; text-transform:uppercase; color:var(--blue); margin-bottom:.9em;}
+  ul.plain{padding-left:1.1em; margin:0 0 1em 0;} ul.plain li{margin-bottom:.45em;}
+  svg text{font-family:'Inter',sans-serif;}
+</style>
+</head>
+<body>
+<div id="progress"></div>
+
+<!-- ============ SECTION 0 — ACCROCHE ============ -->
+<section class="hero" id="s0">
+  <div class="kicker reveal">Comprendre · Dynamique — le ressort</div>
+  <h1 class="reveal">On écarte une masse accrochée à un ressort, puis on la lâche. Où sera-t-elle dans une seconde&nbsp;?</h1>
+  <p class="lede reveal">Une masse posée sur une table parfaitement glissante est reliée à un mur par un ressort. On l’écarte de quelques centimètres, on la lâche&nbsp;: elle part, revient, repart. La suspension d’une voiture et le balancier d’une montre reposent sur ce même va-et-vient.</p>
+
+  <div class="intro-visual reveal">
+    <svg id="hero-svg" viewBox="0 0 600 190" aria-label="Masse reliée à un mur par un ressort, écartée de sa position de repos"></svg>
+  </div>
+
+  <p class="reveal">Pour prédire la position de la masse à chaque instant, on suit la même méthode que pour le pendule&nbsp;: bilan des forces, principe fondamental de la dynamique (PFD), projection, équation différentielle. Cette fois, on va jusqu’au bout&nbsp;: on résout l’équation pour obtenir la position en fonction du temps.</p>
+  <div class="scroll-cue reveal">scroller pour suivre la méthode ↓</div>
+</section>
+
+<hr class="divider">
+
+<!-- ============ SECTION 1 — MODÉLISER ============ -->
+<section class="wide" id="s1">
+  <div class="section-num reveal">01 · Modéliser</div>
+  <h2 class="reveal">Le système, le repère, et trois forces</h2>
+  <p class="reveal">Avant toute équation, on fixe trois choses&nbsp;: ce qu’on étudie, d’où on le regarde, et comment on repère sa position.</p>
+
+  <div class="grid-2">
+    <div class="anim-box reveal">
+      <svg id="anim1-svg" viewBox="0 0 340 240"></svg>
+      <div class="readout">
+        <span>allongement <span id="f-allong"></span> = <span class="val" id="r1-dx"></span></span>
+        <span><span id="f-Fx-ro"></span> = <span class="val" id="r1-F"></span></span>
+      </div>
+      <p class="anim-note">mouvement ralenti · flèche bleue proportionnelle à la force du ressort</p>
+    </div>
+    <div class="reveal">
+      <ul class="plain">
+        <li><strong>Système</strong>&nbsp;: la masse <span id="f-m"></span>, assimilée à un point <span id="f-M"></span>.</li>
+        <li><strong>Référentiel</strong>&nbsp;: le sol, supposé galiléen. C’est la condition pour avoir le droit d’écrire le PFD.</li>
+        <li><strong>Repère</strong>&nbsp;: origine <span id="f-O"></span> au point où le ressort est fixé au mur, <span id="f-ux"></span> horizontal vers la droite, <span id="f-uy"></span> vertical vers le haut. La position de <span id="f-M2"></span> est son abscisse <span id="f-x"></span>. Comme le ressort part de <span id="f-O2"></span>, <span id="f-x2"></span> est aussi la longueur du ressort.</li>
+        <li><strong>Longueur à vide</strong> <span id="f-l0"></span>&nbsp;: la longueur du ressort quand il n’est ni tiré ni comprimé.</li>
+      </ul>
+      <p>Les forces subies par <span id="f-M3"></span>&nbsp;:</p>
+      <div id="f-forces"></div>
+      <p><span class="accent-teal">Poids et réaction</span> sont verticaux. La réaction n’a pas de composante horizontale parce qu’il n’y a pas de frottement&nbsp;: un frottement serait justement cette composante horizontale.</p>
+      <p><span class="accent-blue">La force du ressort</span>, de raideur <span id="f-k"></span> (en N/m), dépend de l’allongement <span id="f-allong2"></span>. Étiré (<span id="f-etire"></span>), le ressort tire <span id="f-M4"></span> vers le mur&nbsp;: <span id="f-Fneg"></span>. Comprimé (<span id="f-comp"></span>), il le repousse&nbsp;: <span id="f-Fpos"></span>. Dans les deux cas, la force pointe vers la position <span id="f-xl0"></span>&nbsp;: on l’appelle <em>force de rappel</em>.</p>
+    </div>
+  </div>
+
+  <details class="detail-card reveal">
+    <summary>Piège&nbsp;: écrire −kx au lieu de −k(x − ℓ₀)</summary>
+    <p>La force dépend de l’allongement, donc de l’écart entre la longueur actuelle et la longueur à vide. Avec l’origine au mur, cet écart vaut <span id="f-piege1"></span>. L’écriture <span id="f-piege2"></span> n’est juste que si l’origine est placée à la position <span id="f-xl0b"></span> — c’est exactement le changement d’origine fait en section 03.</p>
+  </details>
+
+  <div class="card retain reveal">
+    <h3>À retenir</h3>
+    <p style="margin:0;">Trois forces&nbsp;: le poids et la réaction, verticaux, et la force du ressort <span id="f-ret1"></span>, horizontale, toujours dirigée vers la position <span id="f-xl0c"></span>.</p>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ============ SECTION 2 — PROJETER ============ -->
+<section class="wide" id="s2">
+  <div class="section-num reveal">02 · Projeter</div>
+  <h2 class="reveal">Du PFD vectoriel à une équation sur x</h2>
+  <p class="reveal">Le PFD dit que la masse fois l’accélération égale la somme des forces&nbsp;:</p>
+  <div class="reveal" id="f-pfd"></div>
+  <p class="reveal">C’est une égalité entre vecteurs. Deux vecteurs égaux ont les mêmes composantes&nbsp;: on obtient donc une équation par axe. On projette sur <span id="f-ux3"></span>, l’axe du mouvement.</p>
+
+  <div class="grid-2">
+    <div class="anim-box reveal">
+      <svg id="anim2-svg" viewBox="0 0 340 270"></svg>
+      <p class="anim-note">cas représenté&nbsp;: ressort étiré, la force du ressort pointe vers le mur</p>
+    </div>
+    <div class="reveal">
+      <p><strong>Projeter</strong> un vecteur sur <span id="f-ux4"></span>, c’est mesurer son ombre sur l’axe horizontal, avec un signe&nbsp;: positif si l’ombre va vers la droite, négatif sinon. Un vecteur vertical a pour ombre un simple point&nbsp;: sa composante sur <span id="f-ux5"></span> est nulle.</p>
+      <div class="demo-line" id="d2-1"></div>
+      <div class="demo-line" id="d2-2"></div>
+      <div class="demo-line" id="d2-3"></div>
+      <div class="demo-line" id="d2-4"></div>
+    </div>
+  </div>
+
+  <p class="reveal" style="margin-top:2em;"><strong>L’accélération.</strong> On note <span id="f-xdot"></span> la vitesse et <span id="f-xddot"></span> l’accélération sur l’axe&nbsp;: un point au-dessus d’une lettre signifie «&nbsp;dérivée par rapport au temps&nbsp;». La masse reste sur la table, sa hauteur ne change pas&nbsp;: son accélération n’a pas de composante sur <span id="f-uy2"></span>. Donc <span id="f-a"></span>, et la projection du membre de gauche sur <span id="f-ux6"></span> donne <span id="f-mxdd"></span>.</p>
+  <p class="reveal"><strong>Sur <span id="f-uy3"></span></strong>, la projection donne <span id="f-proj-y"></span>, donc <span id="f-Rmg"></span>&nbsp;: la table compense exactement le poids. Cette équation ne dit rien du mouvement horizontal&nbsp;; l’équation utile est celle sur <span id="f-ux7"></span>.</p>
+
+  <div class="card retain reveal">
+    <h3>À retenir</h3>
+    <p style="margin:0;">Projeter le PFD sur l’axe du mouvement élimine les forces perpendiculaires à cet axe. Il reste <span id="f-ret2"></span>&nbsp;: une seule équation, une seule inconnue, la fonction <span id="f-xt"></span>.</p>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ============ SECTION 3 — METTRE EN FORME ============ -->
+<section class="wide" id="s3">
+  <div class="section-num reveal">03 · Mettre en forme</div>
+  <h2 class="reveal">L’équation différentielle, sous sa forme standard</h2>
+  <p class="reveal">L’équation <span id="f-eq0"></span> relie la fonction <span id="f-xt2"></span> à sa dérivée seconde&nbsp;: c’est une <em>équation différentielle</em>. Avant de la résoudre, on la réécrit en deux étapes.</p>
+
+  <div class="grid-2">
+    <div class="anim-box reveal">
+      <svg id="anim3-svg" viewBox="0 0 340 215"></svg>
+      <p class="anim-note">même position de la masse, deux origines différentes</p>
+    </div>
+    <div class="reveal">
+      <p><strong>Étape 1 — diviser par <span id="f-m5"></span></strong> pour isoler <span id="f-xddot2"></span>, puis nommer <span id="f-w0def"></span>. L’unité de <span id="f-km"></span> est <span id="f-unit"></span>&nbsp;: sa racine s’exprime en s⁻¹, c’est une pulsation (en rad/s). On lui donne un nom parce qu’elle réapparaît dans la solution.</p>
+      <div class="demo-line" id="d3-1"></div>
+      <div class="demo-line" id="d3-2"></div>
+      <div class="demo-line" id="d3-3"></div>
+      <p style="margin-top:1em;"><strong>Étape 2 — changer d’origine.</strong> On pose <span id="f-Xdef"></span>&nbsp;: <span id="f-X"></span> mesure l’écart à la position où la force du ressort s’annule. <span id="f-l02"></span> est constant, donc <span id="f-XddXdd"></span>.</p>
+      <div class="demo-line" id="d3-4"></div>
+    </div>
+  </div>
+
+  <p class="reveal" style="margin-top:2em;">Le second membre a disparu. Cette équation, <span id="f-oh"></span>, s’appelle l’équation de l’<em>oscillateur harmonique</em>. On sait la résoudre directement, ce qui justifie le changement d’origine.</p>
+
+  <div class="card retain reveal">
+    <h3>À retenir</h3>
+    <p style="margin:0;">Avec <span id="f-ret3a"></span> et <span id="f-ret3b"></span>, l’équation du mouvement s’écrit <span id="f-ret3c"></span>&nbsp;: c’est l’équation de l’oscillateur harmonique.</p>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ============ SECTION 4 — RÉSOUDRE ============ -->
+<section class="wide" id="s4">
+  <div class="section-num reveal">04 · Résoudre</div>
+  <h2 class="reveal">Trouver x(t)</h2>
+  <p class="reveal">On cherche une fonction <span id="f-Xt"></span> dont la dérivée seconde vaut <span id="f-mw2"></span> fois elle-même. Le cosinus convient&nbsp;:</p>
+  <div class="reveal" id="f-cosverif"></div>
+  <p class="reveal">Le sinus convient aussi, par le même calcul. Toute combinaison des deux est encore solution&nbsp;:</p>
+  <div class="reveal" id="f-gen"></div>
+  <p class="reveal"><span id="f-A"></span> et <span id="f-B"></span> sont deux constantes. L’équation contient une dérivée seconde&nbsp;: revenir à <span id="f-Xt3"></span> revient à intégrer deux fois, et chaque intégration apporte une constante — comme pour les lois en trapèze. Il faut donc deux informations pour les fixer&nbsp;: les <em>conditions initiales</em>.</p>
+
+  <div class="grid-2">
+    <div class="reveal">
+      <p><strong>Conditions initiales.</strong> À <span id="f-t0"></span>, on lâche la masse en <span id="f-x0"></span>, sans vitesse&nbsp;: <span id="f-ci"></span>. En termes de <span id="f-X3"></span>&nbsp;: <span id="f-ciX"></span>.</p>
+      <div id="f-A1"></div>
+      <div id="f-Xdot"></div>
+      <div id="f-B1"></div>
+      <p>On revient à <span id="f-x6"></span> avec <span id="f-back"></span>&nbsp;:</p>
+      <div id="f-sol"></div>
+    </div>
+    <div class="anim-box reveal">
+      <svg id="anim4-svg" viewBox="0 0 340 320"></svg>
+      <div class="readout">
+        <span><span id="f-t-ro"></span> = <span class="val" id="r4-t"></span></span>
+        <span><span id="f-x-ro"></span> = <span class="val" id="r4-x"></span></span>
+      </div>
+      <p class="anim-note">m = 0,5 kg · k = 20 N/m · ℓ₀ = 20 cm · x₀ = 25 cm · ralenti ×3</p>
+    </div>
+  </div>
+
+  <p class="reveal" style="margin-top:2em;"><strong>Lire la solution.</strong> La masse oscille autour de <span id="f-l03"></span>, la position où la force s’annule. L’écart maximal, l’<em>amplitude</em>, vaut <span id="f-amp"></span>&nbsp;: il est fixé au moment du lâcher. Le cosinus reprend la même valeur quand <span id="f-w0t"></span> augmente de <span id="f-2pi"></span>, d’où la période&nbsp;:</p>
+  <div class="reveal" id="f-T0"></div>
+  <p class="reveal">Avec les valeurs de l’animation, <span id="f-num"></span>. La période ne dépend que de <span id="f-m6"></span> et <span id="f-k6"></span>&nbsp;: une masse quatre fois plus lourde oscille deux fois plus lentement&nbsp;; un ressort plus raide oscille plus vite.</p>
+
+  <div class="card retain reveal">
+    <h3>À retenir</h3>
+    <p style="margin:0;"><span id="f-ret4a"></span>&nbsp;: la masse oscille autour de <span id="f-l04"></span>, avec l’amplitude fixée au lâcher et la période <span id="f-ret4b"></span>, qui ne dépend que de <span id="f-m7"></span> et <span id="f-k7"></span>.</p>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ============ SECTION FINALE ============ -->
+<section class="wide" id="s5">
+  <div class="section-num reveal">05 · Prendre du recul</div>
+  <h2 class="reveal">Quatre gestes, toujours dans le même ordre</h2>
+  <div class="summary-grid reveal">
+    <div class="summary-item"><strong>Modéliser</strong>Système, référentiel galiléen, repère, bilan des forces — dont la force de rappel <span id="f-s1"></span>.</div>
+    <div class="summary-item"><strong>Projeter</strong>PFD projeté sur l’axe du mouvement&nbsp;: <span id="f-s2"></span>.</div>
+    <div class="summary-item"><strong>Mettre en forme</strong>Diviser par <span id="f-m8"></span>, nommer <span id="f-s3a"></span>, poser <span id="f-s3b"></span>&nbsp;: <span id="f-s3c"></span>.</div>
+    <div class="summary-item"><strong>Résoudre</strong>Solution à deux constantes, fixées par <span id="f-s4a"></span> et <span id="f-s4b"></span>&nbsp;: <span id="f-s4c"></span>.</div>
+  </div>
+
+  <div class="card reveal">
+    <h3>Ce que cette capsule ne traite pas</h3>
+    <p style="margin:0;">Sans frottement, rien ne dissipe d’énergie&nbsp;: l’oscillation ne s’arrête jamais. Une vraie masse finit par s’immobiliser en <span id="f-xl0d"></span>&nbsp;; décrire cet amortissement demande d’ajouter une force de frottement au bilan. Le lâcher avec une vitesse initiale non nulle n’est pas traité non plus&nbsp;: la méthode est identique, seule la valeur de <span id="f-B2"></span> change.</p>
+  </div>
+
+  <div class="card retain reveal">
+    <h3>Cadre de cette capsule</h3>
+    <p>Référentiel terrestre supposé galiléen&nbsp;; mouvement horizontal sur un support sans frottement&nbsp;; ressort idéal (masse négligeable, force proportionnelle à l’allongement)&nbsp;; masse lâchée sans vitesse initiale.</p>
+    <p style="margin:0;">Les mêmes quatre gestes s’appliquent au ressort vertical (le poids déplace la position d’équilibre) et au ressort avec frottement (l’équation gagne un terme en <span id="f-xdot2"></span>).</p>
+  </div>
+</section>
+
+<footer>Cours de Luca · Dynamique · Le ressort horizontal</footer>
+
+<script>
+/* ---------- helper KaTeX ---------- */
+function K(id, tex, display){
+  const e = document.getElementById(id);
+  if(e) katex.render(tex, e, {throwOnError:false, displayMode: !!display});
+}
+const vP='\\vec P', vR='\\vec R', vF='\\vec F', ux='\\vec u_x', uy='\\vec u_y';
+const Fres = '\\vec F = -k\\,(x-\\ell_0)\\,\\vec u_x';
+const eqx = 'm\\ddot x = -k\\,(x-\\ell_0)';
+const xsol = 'x(t) = \\ell_0 + (x_0-\\ell_0)\\cos(\\omega_0 t)';
+const T0tex = 'T_0 = \\dfrac{2\\pi}{\\omega_0} = 2\\pi\\sqrt{\\dfrac{m}{k}}';
+
+/* section 1 */
+K('f-allong','x-\\ell_0'); K('f-Fx-ro','F_x');
+K('f-m','m'); K('f-M','M'); K('f-M2','M'); K('f-M3','M'); K('f-M4','M');
+K('f-O','O'); K('f-O2','O'); K('f-ux',ux); K('f-uy',uy); K('f-x','x'); K('f-x2','x');
+K('f-l0','\\ell_0'); K('f-k','k'); K('f-allong2','x-\\ell_0');
+K('f-forces', '\\vec P = -mg\\,\\vec u_y \\qquad \\vec R = R\\,\\vec u_y \\qquad ' + Fres, true);
+K('f-etire','x>\\ell_0'); K('f-Fneg','F_x<0'); K('f-comp','x<\\ell_0'); K('f-Fpos','F_x>0');
+K('f-xl0','x=\\ell_0'); K('f-xl0b','x=\\ell_0'); K('f-xl0c','x=\\ell_0'); K('f-xl0d','x=\\ell_0');
+K('f-piege1','x-\\ell_0'); K('f-piege2','-kx'); K('f-ret1', Fres);
+
+/* section 2 */
+K('f-pfd','m\\,\\vec a = ' + vP + ' + ' + vR + ' + ' + vF, true);
+K('f-ux3',ux); K('f-ux4',ux); K('f-ux5',ux); K('f-ux6',ux); K('f-ux7',ux);
+K('f-uy2',uy); K('f-uy3',uy);
+K('d2-1','F_x = -k\\,(x-\\ell_0)', true);
+K('d2-2','P_x = 0', true);
+K('d2-3','R_x = 0', true);
+K('d2-4','\\Rightarrow\\quad ' + eqx, true);
+K('f-xdot','\\dot x = \\dfrac{dx}{dt}'); K('f-xddot','\\ddot x = \\dfrac{d^2x}{dt^2}');
+K('f-a','\\vec a = \\ddot x\\,\\vec u_x'); K('f-mxdd','m\\ddot x');
+K('f-proj-y','0 = -mg + R'); K('f-Rmg','R = mg'); K('f-ret2', eqx); K('f-xt','x(t)');
+
+/* section 3 */
+K('f-eq0', eqx); K('f-xt2','x(t)'); K('f-m5','m'); K('f-xddot2','\\ddot x');
+K('f-w0def','\\omega_0 = \\sqrt{k/m}'); K('f-km','k/m'); K('f-unit','\\mathrm{(N/m)/kg = s^{-2}}');
+K('d3-1', eqx, true);
+K('d3-2','\\ddot x = -\\dfrac{k}{m}\\,(x-\\ell_0)', true);
+K('d3-3','\\ddot x + \\omega_0^2\\, x = \\omega_0^2\\, \\ell_0', true);
+K('f-Xdef','X = x-\\ell_0'); K('f-X','X'); K('f-l02','\\ell_0'); K('f-XddXdd','\\ddot X = \\ddot x');
+K('d3-4','\\ddot X + \\omega_0^2\\, X = 0', true);
+K('f-oh','\\ddot X + \\omega_0^2 X = 0');
+K('f-ret3a','X = x-\\ell_0'); K('f-ret3b','\\omega_0=\\sqrt{k/m}'); K('f-ret3c','\\ddot X + \\omega_0^2 X = 0');
+
+/* section 4 */
+K('f-Xt','X(t)'); K('f-mw2','-\\omega_0^2');
+K('f-cosverif','\\frac{d}{dt}\\cos(\\omega_0 t) = -\\omega_0\\sin(\\omega_0 t) \\qquad \\frac{d^2}{dt^2}\\cos(\\omega_0 t) = -\\omega_0^2\\cos(\\omega_0 t)', true);
+K('f-gen','X(t) = A\\cos(\\omega_0 t) + B\\sin(\\omega_0 t)', true);
+K('f-A','A'); K('f-B','B'); K('f-B2','B'); K('f-Xt3','X(t)');
+K('f-t0','t=0'); K('f-x0','x_0'); K('f-ci','x(0)=x_0,\\ \\dot x(0)=0');
+K('f-X3','X'); K('f-ciX','X(0)=x_0-\\ell_0,\\ \\dot X(0)=0');
+K('f-A1','X(0) = A\\cos 0 + B\\sin 0 = A \\;\\Rightarrow\\; A = x_0-\\ell_0', true);
+K('f-Xdot','\\dot X(t) = -A\\,\\omega_0\\sin(\\omega_0 t) + B\\,\\omega_0\\cos(\\omega_0 t)', true);
+K('f-B1','\\dot X(0) = B\\,\\omega_0 = 0 \\;\\Rightarrow\\; B = 0', true);
+K('f-x6','x'); K('f-back','x = \\ell_0 + X');
+K('f-sol','\\boxed{' + xsol + '}', true);
+K('f-t-ro','t'); K('f-x-ro','x');
+K('f-l03','\\ell_0'); K('f-l04','\\ell_0'); K('f-amp','|x_0-\\ell_0|'); K('f-w0t','\\omega_0 t'); K('f-2pi','2\\pi');
+K('f-T0', T0tex, true);
+/* valeurs vérifiées par script Python : ω0 = 6,3246 rad/s ; T0 = 0,9935 s */
+K('f-num','\\omega_0 = \\sqrt{20/0{,}5} \\approx 6{,}32\\ \\mathrm{rad/s}\\ \\text{ et }\\ T_0 \\approx 0{,}99\\ \\mathrm{s}');
+K('f-m6','m'); K('f-k6','k'); K('f-m7','m'); K('f-k7','k');
+K('f-ret4a', xsol); K('f-ret4b','T_0 = 2\\pi\\sqrt{m/k}');
+
+/* synthèse */
+K('f-s1','-k(x-\\ell_0)\\,\\vec u_x'); K('f-s2', eqx); K('f-m8','m');
+K('f-s3a','\\omega_0=\\sqrt{k/m}'); K('f-s3b','X=x-\\ell_0'); K('f-s3c','\\ddot X+\\omega_0^2X=0');
+K('f-s4a','x(0)'); K('f-s4b','\\dot x(0)'); K('f-s4c', xsol); K('f-xdot2','\\dot x');
+
+/* ---------- scroll progress bar ---------- */
+const progressEl = document.getElementById('progress');
+function updateProgress(){
+  const h = document.documentElement;
+  const scrolled = (h.scrollTop) / (h.scrollHeight - h.clientHeight);
+  progressEl.style.width = (scrolled*100) + '%';
+}
+document.addEventListener('scroll', updateProgress, {passive:true});
+updateProgress();
+
+/* ---------- reveal on scroll ---------- */
+const io = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('visible'); io.unobserve(e.target); } });
+}, {threshold:0.15});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+/* ---------- utilitaires SVG communs ---------- */
+const NS = 'http://www.w3.org/2000/svg';
+function el(tag, attrs){
+  const e = document.createElementNS(NS, tag);
+  for(const k in attrs) e.setAttribute(k, attrs[k]);
+  return e;
+}
+function arrowHead(px, py, angleRad, len){
+  len = len || 10;
+  const a1 = angleRad + Math.PI*0.86, a2 = angleRad - Math.PI*0.86;
+  const x1 = px + len*Math.cos(a1), y1 = py - len*Math.sin(a1);
+  const x2 = px + len*Math.cos(a2), y2 = py - len*Math.sin(a2);
+  return `M ${x1} ${y1} L ${px} ${py} L ${x2} ${y2} L ${px + 5*Math.cos(angleRad)} ${py - 5*Math.sin(angleRad)} Z`;
+}
+function easeInOutCubic(p){ return p < 0.5 ? 4*p*p*p : 1 - Math.pow(-2*p + 2, 3) / 2; }
+function lerp(a, b, p){ return a + (b - a) * p; }
+function tween(duration, onUpdate){
+  return new Promise(resolve => {
+    const t0 = performance.now();
+    function step(ts){
+      const p = Math.min(1, (ts - t0) / duration);
+      onUpdate(easeInOutCubic(p));
+      if(p < 1) requestAnimationFrame(step); else resolve();
+    }
+    requestAnimationFrame(step);
+  });
+}
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+/* couleurs du design system (les attributs SVG n'acceptent pas var()) */
+const C = {ink:'#2D2D30', soft:'#78787D', rule:'#E4E4E7', card:'#F7F7F8', blue:'#285AC4', teal:'#0F766E', blueSoft:'#EAF0FB'};
+
+/* flèche = trait + pointe, mise à jour à chaque frame */
+function makeArrow(svg, color, w){
+  const g = el('g',{});
+  const line = el('line',{stroke:color,'stroke-width':w||2.5,'stroke-linecap':'round'});
+  const head = el('path',{fill:color});
+  g.appendChild(line); g.appendChild(head); svg.appendChild(g);
+  return {g, set(x1,y1,x2,y2){
+    const L = Math.hypot(x2-x1, y2-y1);
+    if(L < 4){ g.setAttribute('opacity',0); return; }
+    g.setAttribute('opacity',1);
+    line.setAttribute('x1',x1); line.setAttribute('y1',y1);
+    line.setAttribute('x2',x2); line.setAttribute('y2',y2);
+    head.setAttribute('d', arrowHead(x2, y2, Math.atan2(-(y2-y1), x2-x1), 9));
+  }};
+}
+/* ressort en zigzag entre xa et xb à la hauteur y, amplitude amp */
+function springPath(xa, xb, y, amp, n){
+  const lead = 8, L = xb - xa - 2*lead;
+  let d = `M ${xa} ${y} L ${xa+lead} ${y}`;
+  for(let i=0;i<n;i++){
+    const xm = xa + lead + L*(i+0.5)/n;
+    d += ` L ${xm} ${y + (i%2 ? amp : -amp)}`;
+  }
+  d += ` L ${xb-lead} ${y} L ${xb} ${y}`;
+  return d;
+}
+function wall(svg, x, y1, y2){
+  svg.appendChild(el('line',{x1:x,y1:y1,x2:x,y2:y2,stroke:C.ink,'stroke-width':2}));
+  for(let y=y1+4; y<=y2; y+=10) svg.appendChild(el('line',{x1:x-9,y1:y+5,x2:x,y2:y-4,stroke:C.soft,'stroke-width':1}));
+}
+function txt(svg, x, y, s, attrs){
+  const t = el('text', Object.assign({x:x, y:y, 'font-size':12, fill:C.ink}, attrs||{}));
+  t.textContent = s; svg.appendChild(t); return t;
+}
+
+/* ================= HERO (statique) =================
+   Échelle 1200 px/m, mur en x=56. ℓ0 = 0,20 m -> centre 296 ; x0 = 0,25 m -> centre 356. */
+(function(){
+  const svg = document.getElementById('hero-svg');
+  wall(svg, 56, 30, 150);
+  svg.appendChild(el('line',{x1:56,y1:150,x2:570,y2:150,stroke:C.ink,'stroke-width':1.5}));
+  // bloc fantôme (repos) : 261..331 × 100..150, pointillé
+  svg.appendChild(el('rect',{x:261,y:100,width:70,height:50,rx:6,fill:'none',stroke:C.soft,'stroke-dasharray':'5 4','stroke-width':1.5}));
+  // label au-dessus du fantôme : baseline 88, occupe y≈79..88, donc 12 px au-dessus du haut des blocs (y=100)
+  txt(svg, 296, 88, 'position de repos', {'text-anchor':'middle', fill:C.soft});
+  svg.appendChild(el('path',{d:springPath(56, 321, 125, 9, 14), fill:'none', stroke:C.ink, 'stroke-width':1.6}));
+  svg.appendChild(el('rect',{x:321,y:100,width:70,height:50,rx:6,fill:C.blueSoft,stroke:C.blue,'stroke-width':1.8}));
+  // flèche "on écarte" à droite du bloc (x 400..470 > bord droit 391)
+  const a = makeArrow(svg, C.soft, 2); a.set(400,125,470,125);
+  // label sous le sol (y=150) : baseline 172, occupe y≈163..172, aucune autre forme sous le sol
+  txt(svg, 435, 172, 'on écarte, puis on lâche', {'text-anchor':'middle', fill:C.soft});
+})();
+
+/* ================= ANIM 1 — forces en direct =================
+   Échelle 800 px/m, origine O en x=30. Centre du bloc M : cx = 30 + 800·x.
+   x ∈ [0,15 ; 0,25] m -> cx ∈ [150 ; 230]. Bloc 50×50 : y 120..170, centre y=145.
+   k = 20 N/m, amplitude 5 cm -> |F| ≤ 1 N -> 60 px/N, flèche ≤ 60 px. */
+(function(){
+  const svg = document.getElementById('anim1-svg');
+  const S=800, O=30, L0=0.20, AMP=0.05, K_=20, PERIOD_MS=4200;
+  wall(svg, O, 70, 170);
+  svg.appendChild(el('line',{x1:O,y1:170,x2:330,y2:170,stroke:C.ink,'stroke-width':1.5}));
+  // repère : axe à y=215, sous la pointe la plus basse du poids (y=190)
+  const ax = makeArrow(svg, C.soft, 1.2); ax.set(O,215,320,215);
+  txt(svg, 326, 219, 'x', {fill:C.soft, 'font-style':'italic'});
+  txt(svg, O, 233, 'O', {'text-anchor':'middle', fill:C.soft});
+  // position d'équilibre x = ℓ0 : cx = 190. Label baseline 88 (y≈79..88) ; la pointe de R monte au plus à y=105 et son label occupe y≈107..116 : zones disjointes.
+  svg.appendChild(el('line',{x1:190,y1:95,x2:190,y2:175,stroke:C.soft,'stroke-dasharray':'4 4','stroke-width':1}));
+  txt(svg, 190, 88, 'x = ℓ₀', {'text-anchor':'middle', fill:C.soft});
+  const spring = el('path',{fill:'none',stroke:C.ink,'stroke-width':1.5}); svg.appendChild(spring);
+  const block = el('rect',{y:120,width:50,height:50,rx:6,fill:C.blueSoft,stroke:C.blue,'stroke-width':1.5,'fill-opacity':0.7}); svg.appendChild(block);
+  const P = makeArrow(svg, C.teal), R = makeArrow(svg, C.teal), F = makeArrow(svg, C.blue, 3);
+  const dot = el('circle',{r:3,fill:C.ink}); svg.appendChild(dot);
+  // labels P, R à droite du trait vertical (x = cx+8) ; F au-dessus de sa flèche (baseline 136 < 140, haut de la pointe)
+  const lP = txt(svg,0,190,'P',{fill:C.teal,'font-weight':600});
+  const lR = txt(svg,0,116,'R',{fill:C.teal,'font-weight':600});
+  const lF = txt(svg,0,136,'F',{fill:C.blue,'font-weight':600});
+  const rdx = document.getElementById('r1-dx'), rF = document.getElementById('r1-F');
+  const fmt = v => (v>=0?'+':'−') + Math.abs(v).toFixed(2).replace('.',',');
+  let t0 = null;
+  function frame(ts){
+    if(t0===null) t0 = ts;
+    const x = L0 + AMP*Math.cos(2*Math.PI*(ts-t0)/PERIOD_MS);
+    const cx = O + S*x, Fx = -K_*(x-L0), len = 60*Fx;
+    // ressort à y=160 (amplitude 5 -> y 155..165) : sous la flèche F (y=145 ± 5 de pointe)
+    spring.setAttribute('d', springPath(O, cx-25, 160, 5, 12));
+    block.setAttribute('x', cx-25);
+    dot.setAttribute('cx', cx); dot.setAttribute('cy', 145);
+    P.set(cx,145,cx,190); R.set(cx,145,cx,105);
+    F.set(cx,145,cx+len,145);
+    lP.setAttribute('x',cx+8); lR.setAttribute('x',cx+8);
+    // label F : 6 px au-delà de la pointe, côté extérieur -> au moins 18 px du trait vertical de R (x=cx) ; caché si |flèche|<12 px
+    if(Math.abs(len) >= 12){
+      lF.setAttribute('opacity',1);
+      lF.setAttribute('x', cx+len+(len>0?6:-6));
+      lF.setAttribute('text-anchor', len>0?'start':'end');
+    } else lF.setAttribute('opacity',0);
+    rdx.textContent = fmt((x-L0)*100) + ' cm';
+    rF.textContent = fmt(Fx) + ' N';
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+
+/* ================= ANIM 2 — projections sur u_x =================
+   M en (170,130). F (étiré) vers (90,130). P vers (170,200). R vers (170,60).
+   Axe de projection à y=235. Un seul label sous l'axe (baseline 258), réutilisé phase après phase : jamais deux labels en même temps. */
+(function(){
+  const svg = document.getElementById('anim2-svg');
+  const MX=170, MY=130, AY=235;
+  svg.appendChild(el('rect',{x:145,y:105,width:50,height:50,rx:6,fill:C.blueSoft,stroke:C.blue,'stroke-width':1,'fill-opacity':0.5}));
+  const ax = makeArrow(svg, C.soft, 1.2); ax.set(20,AY,320,AY);
+  txt(svg, 326, AY+4, 'x', {fill:C.soft,'font-style':'italic'});
+  const dropA = el('line',{stroke:C.soft,'stroke-dasharray':'4 4','stroke-width':1}); svg.appendChild(dropA);
+  const dropB = el('line',{stroke:C.soft,'stroke-dasharray':'4 4','stroke-width':1}); svg.appendChild(dropB);
+  const Fa = makeArrow(svg, C.blue, 3); Fa.set(MX,MY,90,MY);
+  const Pa = makeArrow(svg, C.teal); Pa.set(MX,MY,MX,200);
+  const Ra = makeArrow(svg, C.teal); Ra.set(MX,MY,MX,60);
+  svg.appendChild(el('circle',{cx:MX,cy:MY,r:3,fill:C.ink}));
+  // labels des vecteurs : F au-dessus de sa pointe (y 113..122), P et R à droite de leur pointe (x=178)
+  txt(svg, 90, 122, 'F', {'text-anchor':'middle', fill:C.blue,'font-weight':600});
+  txt(svg, 178, 200, 'P', {fill:C.teal,'font-weight':600});
+  txt(svg, 178, 66, 'R', {fill:C.teal,'font-weight':600});
+  const comp = makeArrow(svg, C.blue, 3.5);
+  const cdot = el('circle',{cx:MX,cy:AY,r:4.5,fill:C.teal,opacity:0}); svg.appendChild(cdot);
+  const lab = txt(svg, MX, 258, '', {'text-anchor':'middle'});
+  const lines = ['d2-1','d2-2','d2-3','d2-4'].map(id=>document.getElementById(id));
+  function hideAll(){ dropA.setAttribute('opacity',0); dropB.setAttribute('opacity',0); comp.g.setAttribute('opacity',0); cdot.setAttribute('opacity',0); lab.textContent=''; }
+  async function drops(xa, ya, xb, yb){
+    dropA.setAttribute('opacity',1); dropB.setAttribute('opacity',1);
+    await tween(1400, p=>{
+      dropA.setAttribute('x1',xa); dropA.setAttribute('y1',ya); dropA.setAttribute('x2',xa); dropA.setAttribute('y2',lerp(ya,AY,p));
+      dropB.setAttribute('x1',xb); dropB.setAttribute('y1',yb); dropB.setAttribute('x2',xb); dropB.setAttribute('y2',lerp(yb,AY,p));
+    });
+  }
+  async function loop(){
+    while(true){
+      hideAll(); lines.forEach(l=>l.style.opacity=0);
+      await sleep(1200);
+      // phase F : ombre de MX à 90, négative
+      await drops(MX,MY,90,MY);
+      await tween(1400, p=>comp.set(MX,AY,lerp(MX,90,p),AY));
+      lab.textContent = 'Fₓ < 0 : l’ombre va vers la gauche'; lab.setAttribute('fill',C.blue);
+      lines[0].style.opacity=1;
+      await sleep(3200);
+      hideAll();
+      // phase P : ombre réduite à un point
+      await drops(MX,MY,MX,200);
+      cdot.setAttribute('opacity',1);
+      lab.textContent = 'Pₓ = 0 : P est perpendiculaire à l’axe'; lab.setAttribute('fill',C.teal);
+      lines[1].style.opacity=1;
+      await sleep(3200);
+      hideAll();
+      // phase R
+      await drops(MX,MY,MX,60);
+      cdot.setAttribute('opacity',1);
+      lab.textContent = 'Rₓ = 0 : R est perpendiculaire à l’axe'; lab.setAttribute('fill',C.teal);
+      lines[2].style.opacity=1;
+      await sleep(3200);
+      hideAll();
+      lines[3].style.opacity=1;
+      await sleep(3600);
+    }
+  }
+  loop();
+})();
+
+/* ================= ANIM 3 — changement d'origine =================
+   Échelle 800 px/m, mur en x=30. M (centre du bloc) en x0 = 0,25 m -> 230 ; ℓ0 -> 190.
+   Étages verticaux disjoints : sol y=95 | mesure x y=122 (label 106..115) | axe x y=140 (label O 147..156)
+   | mesure X y=172 (label 156..165) | axe X y=190 (label O′ 197..206). */
+(function(){
+  const svg = document.getElementById('anim3-svg');
+  const O=30, M=230, E=190;
+  wall(svg, O, 25, 95);
+  svg.appendChild(el('line',{x1:O,y1:95,x2:330,y2:95,stroke:C.ink,'stroke-width':1.5}));
+  svg.appendChild(el('path',{d:springPath(O, M-25, 75, 6, 14), fill:'none', stroke:C.ink,'stroke-width':1.5}));
+  svg.appendChild(el('rect',{x:M-25,y:55,width:50,height:40,rx:6,fill:C.blueSoft,stroke:C.blue,'stroke-width':1.5}));
+  svg.appendChild(el('circle',{cx:M,cy:75,r:3,fill:C.ink}));
+  // équilibre : label au-dessus (baseline 40), le bloc commence en x=205 > 190+8 : pas de recouvrement
+  svg.appendChild(el('line',{x1:E,y1:45,x2:E,y2:200,stroke:C.soft,'stroke-dasharray':'4 4','stroke-width':1}));
+  txt(svg, E, 40, 'ℓ₀', {'text-anchor':'middle', fill:C.soft});
+  // mesure x (bleu), fixe
+  const mx1 = makeArrow(svg, C.blue, 1.6), mx2 = makeArrow(svg, C.blue, 1.6);
+  mx1.set((O+M)/2,122,M,122); mx2.set((O+M)/2,122,O,122);
+  txt(svg, (O+M)/2, 115, 'x', {'text-anchor':'middle', fill:C.blue,'font-style':'italic','font-weight':600});
+  const a1 = makeArrow(svg, C.soft, 1.2); a1.set(O,140,320,140);
+  txt(svg, 326, 144, 'x', {fill:C.soft,'font-style':'italic'});
+  txt(svg, O, 156, 'O', {'text-anchor':'middle', fill:C.soft});
+  // mesure X (teal) et axe X : l'origine glisse de O vers ℓ0
+  const mX1 = makeArrow(svg, C.teal, 1.6), mX2 = makeArrow(svg, C.teal, 1.6);
+  const lX = txt(svg, 0, 165, 'X', {'text-anchor':'middle', fill:C.teal,'font-style':'italic','font-weight':600});
+  const a2 = makeArrow(svg, C.soft, 1.2);
+  const tick = el('line',{y1:185,y2:195,stroke:C.teal,'stroke-width':2}); svg.appendChild(tick);
+  txt(svg, 326, 194, 'X', {fill:C.soft,'font-style':'italic'});
+  const lO2 = txt(svg, 0, 207, 'origine de X', {'text-anchor':'middle', fill:C.teal});
+  function setOrigin(o){
+    const mid = (o+M)/2;
+    if(M-o > 30){ mX1.set(mid,172,M,172); mX2.set(mid,172,o,172); lX.setAttribute('opacity',1); }
+    else { mX1.set(o,172,M,172); mX2.set(M,172,o,172); }
+    lX.setAttribute('x', mid);
+    a2.set(o,190,320,190);
+    tick.setAttribute('x1',o); tick.setAttribute('x2',o);
+    // label d'origine centré sur o, clampé pour rester dans le viewBox (largeur ≈ 70 px)
+    lO2.setAttribute('x', Math.max(40, o));
+  }
+  async function loop(){
+    while(true){
+      setOrigin(O);
+      await sleep(1200);
+      await tween(2800, p=>setOrigin(lerp(O,E,p)));
+      await sleep(3200);
+      await tween(2400, p=>setOrigin(lerp(E,O,p)));
+    }
+  }
+  loop();
+  // lignes de calcul : 2400 ms entre chaque ligne
+  const L = ['d3-1','d3-2','d3-3','d3-4'].map(id=>document.getElementById(id));
+  (async function seq(){
+    while(true){
+      L.forEach(l=>l.style.opacity=0);
+      await sleep(900);
+      for(const l of L){ l.style.opacity=1; await sleep(2400); }
+      await sleep(4000);
+    }
+  })();
+})();
+
+/* ================= ANIM 4 — x(t) tracé en direct =================
+   m=0,5 kg, k=20 N/m, ℓ0=0,20 m, x0=0,25 m : ω0=6,3246 rad/s, T0=0,9935 s (vérifié Python).
+   Haut : bloc (y 50..80), échelle 800 px/m, centre = 30 + 800·x.
+   Graphe : t -> gx = 40 + 90·t (t ∈ [0,3] s -> 40..310) ; x -> gy = 200 − 1400·(x − 0,20)
+   (x0 -> 130, ℓ0 -> 200, 2ℓ0 − x0 -> 270). gx(T0) = 129,4. */
+(function(){
+  const svg = document.getElementById('anim4-svg');
+  const L0=0.20, X0=0.25, W0=Math.sqrt(20/0.5), T0=2*Math.PI/W0, TMAX=3, SLOW=3;
+  const gx = t => 40 + 90*t, gy = x => 200 - 1400*(x-L0);
+  wall(svg, 30, 20, 80);
+  svg.appendChild(el('line',{x1:30,y1:80,x2:330,y2:80,stroke:C.ink,'stroke-width':1.5}));
+  svg.appendChild(el('line',{x1:190,y1:38,x2:190,y2:88,stroke:C.soft,'stroke-dasharray':'4 4','stroke-width':1}));
+  txt(svg, 190, 33, 'ℓ₀', {'text-anchor':'middle', fill:C.soft});
+  const spring = el('path',{fill:'none',stroke:C.ink,'stroke-width':1.4}); svg.appendChild(spring);
+  const block = el('rect',{y:50,width:40,height:30,rx:5,fill:C.blueSoft,stroke:C.blue,'stroke-width':1.5}); svg.appendChild(block);
+  // axes du graphe. Label "x" : baseline 100 (y 91..100), sous le sol (80) et au-dessus de la flèche de l'axe (108)
+  const va = makeArrow(svg, C.soft, 1.2); va.set(40,300,40,108);
+  txt(svg, 40, 100, 'x', {'text-anchor':'middle', fill:C.soft,'font-style':'italic'});
+  const ha = makeArrow(svg, C.soft, 1.2); ha.set(40,290,318,290);
+  txt(svg, 322, 294, 't', {fill:C.soft,'font-style':'italic'});
+  // repères horizontaux ℓ0 (y=200) et x0 (y=130) ; labels à gauche de l'axe, 70 px d'écart vertical
+  svg.appendChild(el('line',{x1:40,y1:200,x2:315,y2:200,stroke:C.soft,'stroke-dasharray':'4 4','stroke-width':1}));
+  txt(svg, 34, 204, 'ℓ₀', {'text-anchor':'end', fill:C.soft});
+  txt(svg, 34, 134, 'x₀', {'text-anchor':'end', fill:C.soft});
+  // période : double flèche à y=118 entre les deux premiers maxima (y=130), 12 px au-dessus de la courbe.
+  // Label T₀ centré en x=84,7 (x≈77..92) : disjoint du label "x" de l'axe (x≈36..44).
+  const g1=gx(0), g2=gx(T0);
+  svg.appendChild(el('line',{x1:g2,y1:122,x2:g2,y2:130,stroke:C.soft,'stroke-width':1}));
+  const p1 = makeArrow(svg, C.soft, 1.2), p2 = makeArrow(svg, C.soft, 1.2);
+  p1.set((g1+g2)/2,118,g2,118); p2.set((g1+g2)/2,118,g1+1,118);
+  txt(svg, (g1+g2)/2, 112, 'T₀', {'text-anchor':'middle', fill:C.ink});
+  const curve = el('polyline',{fill:'none',stroke:C.blue,'stroke-width':2.2,'stroke-linejoin':'round'}); svg.appendChild(curve);
+  const cur = el('circle',{r:4,fill:C.blue}); svg.appendChild(cur);
+  const rt = document.getElementById('r4-t'), rx = document.getElementById('r4-x');
+  const xOf = t => L0 + (X0-L0)*Math.cos(W0*t);
+  function draw(t){
+    const x = xOf(t), cx = 30 + 800*x;
+    spring.setAttribute('d', springPath(30, cx-20, 65, 5, 12));
+    block.setAttribute('x', cx-20);
+    cur.setAttribute('cx', gx(t)); cur.setAttribute('cy', gy(x));
+    rt.textContent = t.toFixed(2).replace('.',',') + ' s';
+    rx.textContent = (x*100).toFixed(1).replace('.',',') + ' cm';
+  }
+  async function loop(){
+    while(true){
+      let pts = [];
+      curve.setAttribute('points','');
+      draw(0); await sleep(1200);
+      await new Promise(res=>{
+        const start = performance.now();
+        function step(ts){
+          const t = Math.min(TMAX, (ts-start)/1000/SLOW);
+          pts.push(gx(t).toFixed(1)+','+gy(xOf(t)).toFixed(1));
+          curve.setAttribute('points', pts.join(' '));
+          draw(t);
+          if(t < TMAX) requestAnimationFrame(step); else res();
+        }
+        requestAnimationFrame(step);
+      });
+      await sleep(3200);
+    }
+  }
+  loop();
+})();
+</script>
+</body>
+</html>
